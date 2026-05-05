@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { Box, Phone, Mail, MapPin } from 'lucide-react';
 import './Footer.css';
 
 const Footer = () => {
@@ -17,10 +17,10 @@ const Footer = () => {
               High-end, modern packaging solutions for industrial and commercial needs. We provide premium boxes, bags, polythene, machines, and cards.
             </p>
             <div className="social-links">
-              <a href="#" className="social-icon"><Facebook size={20} /></a>
-              <a href="#" className="social-icon"><Instagram size={20} /></a>
-              <a href="#" className="social-icon"><Twitter size={20} /></a>
-              <a href="#" className="social-icon"><Linkedin size={20} /></a>
+              <a href="#" className="social-icon">FB</a>
+              <a href="#" className="social-icon">IG</a>
+              <a href="#" className="social-icon">TW</a>
+              <a href="#" className="social-icon">LI</a>
             </div>
           </div>
 
