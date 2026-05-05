@@ -1,0 +1,144 @@
+.product-listing-page {
+  padding: 2rem 0;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  color: var(--primary-deep-navy);
+}
+
+.listing-container {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.filters-sidebar {
+  width: 280px;
+  background: var(--bg-card-surface);
+  padding: 1.5rem;
+  border-radius: var(--card-radius);
+  box-shadow: var(--soft-shadow);
+  position: sticky;
+  top: 100px;
+}
+
+.filter-group {
+  margin-bottom: 2rem;
+}
+
+.filter-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--primary-deep-navy);
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.filter-label:hover {
+  color: var(--primary-deep-navy);
+}
+
+.filter-label input[type="radio"],
+.filter-label input[type="checkbox"] {
+  accent-color: var(--accent-electric-cyan);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.products-content {
+  flex: 1;
+}
+
+.products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  background: var(--bg-card-surface);
+  padding: 1rem 1.5rem;
+  border-radius: var(--card-radius);
+  box-shadow: var(--soft-shadow);
+}
+
+.search-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-soft-white);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.05);
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-filter input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.sort-dropdown {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: var(--button-radius);
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  background: white;
+  cursor: pointer;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 4rem;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+@media (max-width: 900px) {
+  .listing-container {
+    flex-direction: column;
+  }
+  .filters-sidebar {
+    width: 100%;
+    position: static;
+  }
+  .products-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .search-filter {
+    max-width: 100%;
+  }
+}
