@@ -2,14 +2,31 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlayCircle, ShoppingCart } from 'lucide-react';
 import { openWhatsApp } from '../utils/whatsapp';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  const { addToCart } = useCart();
 
   const handleBuyNow = (e) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
     openWhatsApp(product.name);
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    addToCart(product);
   };
 
   return (
@@ -31,15 +48,15 @@ const ProductCard = ({ product }) => {
           {product.price ? (
             <span className="product-price">${product.price.toFixed(2)}</span>
           ) : (
-            <span className="contact-price">Contact for Price</span>
+            <span className="contact-price">Ask to Seller</span>
           )}
         </div>
 
         <div className="action-buttons">
           <button className="btn-buy" onClick={handleBuyNow}>
-            Buy Now
+            {product.price ? 'Buy Now' : 'Ask to Seller'}
           </button>
-          <button className="btn-cart" onClick={(e) => e.preventDefault()} title="Add to Cart">
+          <button className="btn-cart" onClick={handleAddToCart} title="Add to Cart">
             <ShoppingCart size={18} />
           </button>
         </div>

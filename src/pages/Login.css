@@ -1,0 +1,115 @@
+.login-page {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  background: var(--bg-soft-white);
+}
+
+.login-container {
+  max-width: 480px;
+  width: 100%;
+}
+
+.login-box {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--hover-shadow);
+  background: var(--bg-card-surface);
+}
+
+.login-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.login-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  border-bottom: 2px solid transparent;
+}
+
+.login-tab:hover {
+  color: var(--primary-deep-navy);
+}
+
+.login-tab.active {
+  color: var(--accent-electric-cyan);
+  border-bottom-color: var(--accent-electric-cyan);
+  background: white;
+}
+
+.login-form {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-header h2 {
+  font-size: 1.8rem;
+  color: var(--primary-deep-navy);
+  margin-bottom: 0.25rem;
+}
+
+.login-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-deep-navy);
+}
+
+.form-group input {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(11, 19, 43, 0.1);
+  background: var(--bg-soft-white);
+  color: var(--text-main);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.form-group input:focus {
+  border-color: var(--accent-electric-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15);
+  background: white;
+}
+
+.btn-login {
+  background: var(--accent-electric-cyan);
+  color: var(--primary-deep-navy);
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 14px rgba(0, 212, 255, 0.2);
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+}

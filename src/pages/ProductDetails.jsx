@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MessageCircle, ShoppingCart, ArrowLeft, PlayCircle } from 'lucide-react';
 import { mockProducts } from './Home';
 import { openWhatsApp } from '../utils/whatsapp';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import './ProductDetails.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
 
@@ -29,7 +34,19 @@ const ProductDetails = () => {
   ];
 
   const handleBuyNow = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
     openWhatsApp(product.name);
+  };
+
+  const handleAddToCart = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    addToCart(product);
   };
 
   return (
@@ -67,7 +84,7 @@ const ProductDetails = () => {
             <h1 className="product-details-title">{product.name}</h1>
             
             <div className="product-details-price">
-              {product.price ? `$${product.price.toFixed(2)}` : 'Contact for Price'}
+              {product.price ? `$${product.price.toFixed(2)}` : 'Ask to Seller'}
             </div>
 
             <p className="product-description">
@@ -96,11 +113,11 @@ const ProductDetails = () => {
             </div>
 
             <div className="actions-group">
-              <button className="btn-add-cart">
+              <button className="btn-add-cart" onClick={handleAddToCart}>
                 <ShoppingCart size={20} /> Add to Cart
               </button>
               <button className="btn-buy-now" onClick={handleBuyNow}>
-                <MessageCircle size={20} /> Order via WhatsApp
+                <MessageCircle size={20} /> {product.price ? 'Order via WhatsApp' : 'Ask to Seller'}
               </button>
             </div>
           </div>

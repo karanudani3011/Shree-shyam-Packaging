@@ -95,3 +95,13 @@
   color: #9CA3AF;
   font-size: 0.9rem;
 }
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 2rem 0 1rem;
+    margin-top: 2rem;
+  }
+  .footer-content {
+    gap: 2rem;
+  }
+}

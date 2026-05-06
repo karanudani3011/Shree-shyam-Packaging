@@ -1,9 +1,22 @@
+.top-banner {
+  background: var(--primary-deep-navy);
+  color: var(--accent-electric-cyan);
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .header {
   position: sticky;
   top: 0;
   z-index: 100;
   padding: 1rem 0;
   transition: all var(--transition-normal);
+  background: var(--bg-card-surface);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .header-container {
@@ -90,12 +103,106 @@
   background: rgba(11, 19, 43, 0.05);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .search-bar {
-    display: none; /* Hide on mobile for simplicity */
-  }
-  .nav-links {
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  color: var(--primary-deep-navy);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  background: var(--bg-card-surface);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  gap: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all var(--transition-fast);
+}
+
+.mobile-nav.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.mobile-nav-link {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primary-deep-navy);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-search {
+  display: flex;
+  align-items: center;
+  background: var(--bg-soft-white);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(11, 19, 43, 0.1);
+}
+
+.cart-badge {
+  background: var(--accent-warm-orange);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+.mobile-cart-btn {
+  position: relative;
+  padding: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .desktop-nav {
     display: none;
+  }
+  .search-bar {
+    display: none;
+  }
+  .mobile-actions {
+    display: flex;
+  }
+  .mobile-nav {
+    display: flex;
+  }
+  .logo {
+    font-size: 1.2rem;
+  }
+  .header-container {
+    gap: 1rem;
   }
 }

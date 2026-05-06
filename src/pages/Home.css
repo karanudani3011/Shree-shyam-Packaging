@@ -55,3 +55,12 @@
 .glow-card:hover {
   box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
 }
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}

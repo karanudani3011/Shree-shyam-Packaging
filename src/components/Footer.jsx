@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="footer-section">
             <Link to="/" className="footer-logo">
               <Box size={28} color="var(--accent-electric-cyan)" />
-              Pack<span>Store</span>
+              Shree Shyam<span>Packaging</span>
             </Link>
             <p className="footer-desc">
               High-end, modern packaging solutions for industrial and commercial needs. We provide premium boxes, bags, polythene, machines, and cards.
@@ -54,7 +54,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} PackStore. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Shree Shyam Packaging. All rights reserved.</p>
         </div>
       </div>
     </footer>
