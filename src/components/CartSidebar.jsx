@@ -1,12 +1,17 @@
 import React from 'react';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { openWhatsAppCart } from '../utils/whatsapp';
 import './CartSidebar.css';
 
 const CartSidebar = () => {
   const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
 
   if (!isCartOpen) return null;
+
+  const handleCheckout = () => {
+    openWhatsAppCart(cartItems);
+  };
 
   return (
     <>
@@ -52,7 +57,7 @@ const CartSidebar = () => {
 
         {cartItems.length > 0 && (
           <div className="cart-footer">
-            <button className="checkout-btn">Proceed to Checkout</button>
+            <button className="checkout-btn" onClick={handleCheckout}>Proceed to Checkout</button>
           </div>
         )}
       </div>
