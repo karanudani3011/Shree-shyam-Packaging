@@ -38,6 +38,7 @@ const Header = () => {
           <nav className="nav-links desktop-nav">
             <Link to="/" className="nav-link">Home</Link>
             <Link to="/products" className="nav-link">Products</Link>
+            <Link to="/about" className="nav-link">About Us</Link>
             <Link to="/products?category=boxes" className="nav-link">Boxes</Link>
             
             {isLoggedIn ? (
@@ -86,6 +87,7 @@ const Header = () => {
           </div>
           <Link to="/" className="mobile-nav-link" onClick={toggleMobileMenu}>Home</Link>
           <Link to="/products" className="mobile-nav-link" onClick={toggleMobileMenu}>Products</Link>
+          <Link to="/about" className="mobile-nav-link" onClick={toggleMobileMenu}>About Us</Link>
           <Link to="/products?category=boxes" className="mobile-nav-link" onClick={toggleMobileMenu}>Boxes</Link>
           
           {isLoggedIn ? (

@@ -10,6 +10,7 @@ import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import About from './pages/About';
 import CartSidebar from './components/CartSidebar';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
+                <Route path="/about" element={<About />} />
               </Routes>
             </main>
             <Footer />
