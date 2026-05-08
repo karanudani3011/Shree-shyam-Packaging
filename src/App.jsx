@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -14,6 +14,14 @@ import About from './pages/About';
 import CartSidebar from './components/CartSidebar';
 
 function App() {
+  useEffect(() => {
+    const navigationEntries = performance.getEntriesByType('navigation');
+    if (navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+    }
+  }, []);
   return (
     <AuthProvider>
       <CartProvider>
