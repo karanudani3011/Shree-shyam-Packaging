@@ -84,7 +84,7 @@ const ProductDetails = () => {
             <h1 className="product-details-title">{product.name}</h1>
             
             <div className="product-details-price">
-              {product.price ? `$${product.price.toFixed(2)}` : 'Ask to Seller'}
+              {product.price ? `₹${product.price.toFixed(2)}` : 'Ask to Seller'}
             </div>
 
             <p className="product-description">
@@ -102,10 +102,12 @@ const ProductDetails = () => {
                 <span className="spec-label">Dimensions</span>
                 <span className="spec-value">{product.dimensions}</span>
               </div>
-              <div className="spec-item">
-                <span className="spec-label">MOQ</span>
-                <span className="spec-value">{product.moq}</span>
-              </div>
+              {product.moq && (
+                <div className="spec-item">
+                  <span className="spec-label">Min. Quantity</span>
+                  <span className="spec-value">{product.moq}</span>
+                </div>
+              )}
               <div className="spec-item">
                 <span className="spec-label">Availability</span>
                 <span className="spec-value" style={{color: 'var(--accent-neon-green)'}}>In Stock</span>

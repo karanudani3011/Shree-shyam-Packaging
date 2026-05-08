@@ -14,7 +14,7 @@ export const openWhatsAppCart = (cartItems) => {
   cartItems.forEach((item, index) => {
     message += `${index + 1}. ${item.name} - Qty: ${item.quantity}`;
     if (item.price) {
-      message += ` ($${(item.price * item.quantity).toFixed(2)})\n`;
+      message += ` (₹${(item.price * item.quantity).toFixed(2)})\n`;
       total += (item.price * item.quantity);
     } else {
       message += ` (Price on Request)\n`;

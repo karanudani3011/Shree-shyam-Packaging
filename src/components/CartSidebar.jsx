@@ -36,7 +36,7 @@ const CartSidebar = () => {
                 <div className="cart-item-details">
                   <h4>{item.name}</h4>
                   <p className="cart-item-price">
-                    {item.price ? `$${item.price.toFixed(2)}` : 'Ask to Seller'}
+                    {item.price ? `₹${item.price.toFixed(2)}` : 'Ask to Seller'}
                   </p>
                   
                   <div className="cart-item-actions">

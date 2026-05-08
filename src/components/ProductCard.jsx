@@ -46,11 +46,17 @@ const ProductCard = ({ product }) => {
         
         <div className="product-price-row">
           {product.price ? (
-            <span className="product-price">${product.price.toFixed(2)}</span>
+            <span className="product-price">₹{product.price.toFixed(2)}</span>
           ) : (
             <span className="contact-price">Ask to Seller</span>
           )}
         </div>
+        
+        {product.moq && (
+          <div className="product-moq" style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem'}}>
+            Min. Qty: {product.moq}
+          </div>
+        )}
 
         <div className="action-buttons">
           <button className="btn-buy" onClick={handleBuyNow}>

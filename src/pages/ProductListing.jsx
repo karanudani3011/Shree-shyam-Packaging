@@ -29,8 +29,16 @@ const ProductListing = () => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
-    if (sortOption === 'price-low') return a.price - b.price;
-    if (sortOption === 'price-high') return b.price - a.price;
+    if (sortOption === 'price-low') {
+      const priceA = a.price !== null ? a.price : Infinity;
+      const priceB = b.price !== null ? b.price : Infinity;
+      return priceA - priceB;
+    }
+    if (sortOption === 'price-high') {
+      const priceA = a.price !== null ? a.price : -Infinity;
+      const priceB = b.price !== null ? b.price : -Infinity;
+      return priceB - priceA;
+    }
     // newest by default
     return new Date(b.date) - new Date(a.date);
   });
