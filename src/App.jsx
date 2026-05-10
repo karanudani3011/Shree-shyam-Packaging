@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -13,39 +12,61 @@ import Privacy from './pages/Privacy';
 import About from './pages/About';
 import CartSidebar from './components/CartSidebar';
 
-function App() {
-  useEffect(() => {
-    const navigationEntries = performance.getEntriesByType('navigation');
-    if (navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
-      if (window.location.pathname !== '/') {
-        window.location.href = '/';
-      }
-    }
-  }, []);
+// Admin Components
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminInventory from './pages/admin/AdminInventory';
+import AdminBilling from './pages/admin/AdminBilling';
+import AdminCRM from './pages/admin/AdminCRM';
+import AdminAccounting from './pages/admin/AdminAccounting';
+import AdminReports from './pages/admin/AdminReports';
+
+const App = () => {
+  const { isLoggedIn, userRole } = useAuth();
+
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
+    <Routes>
+      {/* 1. Login Route */}
+      <Route 
+        path="/login" 
+        element={!isLoggedIn ? <Login /> : <Navigate to={userRole === 'admin' ? "/admin" : "/"} replace />} 
+      />
+
+      {/* 2. Admin Protected Routes */}
+      <Route path="/admin" element={isLoggedIn && userRole === 'admin' ? <AdminLayout /> : <Navigate to="/login" replace />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="inventory" element={<AdminInventory />} />
+        <Route path="billing" element={<AdminBilling />} />
+        <Route path="crm" element={<AdminCRM />} />
+        <Route path="accounting" element={<AdminAccounting />} />
+        <Route path="reports" element={<AdminReports />} />
+      </Route>
+
+      {/* 3. Customer Protected Routes */}
+      <Route 
+        path="/" 
+        element={isLoggedIn && userRole === 'user' ? (
           <div className="app">
             <Header />
             <CartSidebar />
             <main className="main-content">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/products" element={<ProductListing />} />
-                <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/about" element={<About />} />
-              </Routes>
+              <Home />
             </main>
             <Footer />
           </div>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+        ) : <Navigate to="/login" replace />} 
+      />
+      
+      <Route path="/products" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductListing /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/product/:id" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductDetails /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/about" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><main className="main-content"><About /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/terms" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><main className="main-content"><Terms /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/privacy" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><main className="main-content"><Privacy /></main><Footer /></div> : <Navigate to="/login" replace />} />
+
+      {/* 4. Global Fallback */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
-}
+};
 
 export default App;
