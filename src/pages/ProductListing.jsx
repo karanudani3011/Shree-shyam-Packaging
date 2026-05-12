@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { mockProducts } from './Home';
+import { useERP, CATEGORIES } from '../context/ERPContext';
 import './ProductListing.css';
 
-const categories = ['All', 'Boxes', 'Bags', 'Polythene', 'Machines', 'Cards'];
+const categories = ['All', ...CATEGORIES];
 
 const ProductListing = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const categoryParam = searchParams.get('category');
+  const { products } = useERP();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -23,9 +24,9 @@ const ProductListing = () => {
     }
   }, [categoryParam]);
 
-  const filteredProducts = mockProducts.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          product.dimensions.toLowerCase().includes(searchTerm.toLowerCase());
+                          (product.dimensions && product.dimensions.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {

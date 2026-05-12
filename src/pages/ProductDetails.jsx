@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { MessageCircle, ShoppingCart, ArrowLeft, PlayCircle } from 'lucide-react';
-import { mockProducts } from './Home';
+import { MessageCircle, ShoppingCart, ArrowLeft, PlayCircle, AlertTriangle } from 'lucide-react';
 import { openWhatsApp } from '../utils/whatsapp';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useERP } from '../context/ERPContext';
 import './ProductDetails.css';
 
 const ProductDetails = () => {
@@ -12,25 +12,26 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const { addToCart } = useCart();
+  const { products } = useERP();
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
-    // In a real app, fetch from API. Here we use mock data.
-    const foundProduct = mockProducts.find(p => p.id === parseInt(id));
+    // Find product from ERPContext
+    const foundProduct = products.find(p => p.id === parseInt(id));
     setProduct(foundProduct);
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, products]);
 
   if (!product) {
     return <div className="container" style={{padding: '4rem 0'}}>Loading...</div>;
   }
 
-  // Mock gallery images
+  // Use the product's actual image from Cloudinary or fallback
   const images = [
     product.image || '/product.png',
-    '/product.png',
-    '/product.png'
+    product.image || '/product.png',
+    product.image || '/product.png'
   ];
 
   const handleBuyNow = () => {
@@ -46,6 +47,7 @@ const ProductDetails = () => {
       navigate('/login');
       return;
     }
+    if (product.outOfStock) return;
     addToCart(product);
   };
 
@@ -63,6 +65,12 @@ const ProductDetails = () => {
               {product.hasVideo && activeImage === 0 && (
                 <div className="video-icon-overlay" style={{top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80px', height: '80px'}}>
                   <PlayCircle size={40} />
+                </div>
+              )}
+              {product.outOfStock && (
+                <div className="oos-overlay-detail">
+                  <AlertTriangle size={24} />
+                  <span>Out of Stock</span>
                 </div>
               )}
             </div>
@@ -84,8 +92,26 @@ const ProductDetails = () => {
             <h1 className="product-details-title">{product.name}</h1>
             
             <div className="product-details-price">
-              {product.price ? `₹${product.price.toFixed(2)}` : 'Ask to Seller'}
+              {product.price ? `₹${product.price.toFixed ? product.price.toFixed(2) : product.price}` : 'Ask to Seller'}
             </div>
+
+            {product.outOfStock && (
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                padding: '0.5rem 1rem',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                marginBottom: '1rem'
+              }}>
+                <AlertTriangle size={16} />
+                Currently Out of Stock
+              </div>
+            )}
 
             <p className="product-description">
               Experience the highest quality in industrial and commercial packaging with our premium {product.name.toLowerCase()}. 
@@ -110,13 +136,20 @@ const ProductDetails = () => {
               )}
               <div className="spec-item">
                 <span className="spec-label">Availability</span>
-                <span className="spec-value" style={{color: 'var(--accent-neon-green)'}}>In Stock</span>
+                <span className="spec-value" style={{color: product.outOfStock ? '#ef4444' : 'var(--accent-neon-green)'}}>
+                  {product.outOfStock ? 'Out of Stock' : 'In Stock'}
+                </span>
               </div>
             </div>
 
             <div className="actions-group">
-              <button className="btn-add-cart" onClick={handleAddToCart}>
-                <ShoppingCart size={20} /> Add to Cart
+              <button 
+                className="btn-add-cart" 
+                onClick={handleAddToCart} 
+                disabled={product.outOfStock}
+                style={product.outOfStock ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              >
+                <ShoppingCart size={20} /> {product.outOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
               <button className="btn-buy-now" onClick={handleBuyNow}>
                 <MessageCircle size={20} /> {product.price ? 'Order via WhatsApp' : 'Ask to Seller'}
