@@ -112,13 +112,7 @@ const Login = () => {
                 <ArrowRight size={20} />
               </button>
 
-              <div className="form-footer">
-                {activeTab === 'user' ? (
-                  <p>Don't have an account? <span className="link">Register here</span></p>
-                ) : (
-                  <p>Forgot access code? <span className="link">Contact Support</span></p>
-                )}
-              </div>
+             
             </form>
           </div>
         </div>
