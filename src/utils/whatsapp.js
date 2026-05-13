@@ -1,6 +1,18 @@
-export const openWhatsApp = (productName) => {
+export const openWhatsApp = (productName, details = {}) => {
   const phoneNumber = "1234567890"; // Placeholder phone number
-  const message = `Hello, I want to order this product: ${productName}`;
+  
+  let message = `Hello, I want to order this product:\n\n`;
+  message += `Product: ${productName}\n`;
+  if (details.sku) message += `SKU: ${details.sku}\n`;
+  if (details.dimensions) message += `Dimensions: ${details.dimensions}\n`;
+  if (details.material) message += `Material: ${details.material}\n`;
+  
+  if (details.name || details.phone) {
+    message += `\nCustomer Details:\n`;
+    if (details.name) message += `Name: ${details.name}\n`;
+    if (details.phone) message += `Mobile: ${details.phone}\n`;
+  }
+  
   const encodedMessage = encodeURIComponent(message);
   window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
 };

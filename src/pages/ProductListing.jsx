@@ -25,8 +25,13 @@ const ProductListing = () => {
   }, [categoryParam]);
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (product.dimensions && product.dimensions.toLowerCase().includes(searchTerm.toLowerCase()));
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = product.name.toLowerCase().includes(searchLower) || 
+                          (product.dimensions && product.dimensions.toLowerCase().includes(searchLower)) ||
+                          (product.material && product.material.toLowerCase().includes(searchLower)) ||
+                          (product.category && product.category.toLowerCase().includes(searchLower)) ||
+                          (product.sku && product.sku.toLowerCase().includes(searchLower));
+    
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
@@ -39,6 +44,9 @@ const ProductListing = () => {
       const priceA = a.price !== null ? a.price : -Infinity;
       const priceB = b.price !== null ? b.price : -Infinity;
       return priceB - priceA;
+    }
+    if (sortOption === 'oldest') {
+      return new Date(a.date) - new Date(b.date);
     }
     // newest by default
     return new Date(b.date) - new Date(a.date);
@@ -104,6 +112,7 @@ const ProductListing = () => {
                 onChange={(e) => setSortOption(e.target.value)}
               >
                 <option value="newest">Newest → Oldest</option>
+                <option value="oldest">Oldest → Newest</option>
                 <option value="price-low">Price: Low → High</option>
                 <option value="price-high">Price: High → Low</option>
               </select>

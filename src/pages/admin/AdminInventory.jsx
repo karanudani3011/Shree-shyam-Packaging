@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
@@ -20,8 +21,11 @@ import { useERP, CATEGORIES } from '../../context/ERPContext';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 import './AdminPages.css';
 
+import * as XLSX from 'xlsx';
+
 const AdminInventory = () => {
-  const { products, addProduct, updateProduct, deleteProduct, toggleOutOfStock } = useERP();
+  const navigate = useNavigate();
+  const { products, addProduct, updateProduct, deleteProduct, toggleOutOfStock, clearInventory } = useERP();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCodes, setShowCodes] = useState(null);
@@ -32,29 +36,87 @@ const AdminInventory = () => {
   const [uploadError, setUploadError] = useState('');
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
+  const excelInputRef = useRef(null);
 
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase())) ||
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const emptyProduct = {
     name: '',
-    category: 'Boxes',
+    category: 'Box',
     stock: 0,
     price: '',
     cost: '',
     sku: '',
     image: '',
     dimensions: '',
+    length: '',
+    width: '',
+    height: '',
+    weight: '',
+    colour: '',
     material: '',
     moq: '',
     outOfStock: false,
-    hasVideo: false
+    hasVideo: false,
+    videoUrl: ''
   };
 
   const [newProduct, setNewProduct] = useState({ ...emptyProduct });
+
+  // Auto-SKU Logic
+  const generateSKU = (category) => {
+    const prefixMap = {
+      'Box': 'A',
+      'Bag': 'B',
+      'Polythene': 'P',
+      'Machine': 'M',
+      'Cards': 'C'
+    };
+    const prefix = prefixMap[category] || 'X';
+    const categoryProducts = products.filter(p => p.category === category);
+    const nextNum = categoryProducts.length + 1;
+    return `${prefix}${nextNum}`;
+  };
+
+  useEffect(() => {
+    if (!editingProduct && newProduct.category) {
+      setNewProduct(prev => ({ ...prev, sku: generateSKU(newProduct.category) }));
+    }
+  }, [newProduct.category, editingProduct, products]);
+
+  const handleExcelUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: 'binary' });
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      const data = XLSX.utils.sheet_to_json(ws);
+      
+      data.forEach(item => {
+        addProduct({
+          name: item.Name || 'Unnamed Product',
+          category: item.Category || 'Box',
+          sku: item.SKU || generateSKU(item.Category || 'Box'),
+          price: item.Price ? Number(item.Price) : null,
+          cost: item.Cost ? Number(item.Cost) : 0,
+          stock: item.Stock ? Number(item.Stock) : 0,
+          dimensions: item.Dimensions || '',
+          material: item.Material || '',
+          moq: item.MOQ || ''
+        });
+      });
+      alert(`Successfully imported ${data.length} products!`);
+    };
+    reader.readAsBinaryString(file);
+  };
 
   const handleImageSelect = (file) => {
     if (!file) return;
@@ -115,15 +177,21 @@ const AdminInventory = () => {
     try {
       let imageUrl = newProduct.image || '/product.png';
 
-      // Upload image to Cloudinary if a new file was selected
       if (imageFile) {
         const result = await uploadToCloudinary(imageFile);
         imageUrl = result.url;
       }
 
+      // Format dimensions string if individual parts are provided
+      let finalDimensions = newProduct.dimensions;
+      if (newProduct.length || newProduct.width || newProduct.height) {
+        finalDimensions = `${newProduct.length || 0}x${newProduct.width || 0}x${newProduct.height || 0} ${newProduct.unit || 'in'}`;
+      }
+
       const productData = {
         ...newProduct,
         image: imageUrl,
+        dimensions: finalDimensions,
         price: newProduct.price === '' || newProduct.price === null ? null : Number(newProduct.price),
         cost: newProduct.cost === '' ? 0 : Number(newProduct.cost),
         stock: Number(newProduct.stock),
@@ -144,29 +212,18 @@ const AdminInventory = () => {
   };
 
   const handleEdit = (product) => {
-    setEditingProduct(product);
-    setNewProduct({
-      name: product.name,
-      category: product.category,
-      stock: product.stock,
-      price: product.price === null ? '' : product.price,
-      cost: product.cost,
-      sku: product.sku,
-      image: product.image || '',
-      dimensions: product.dimensions || '',
-      material: product.material || '',
-      moq: product.moq || '',
-      outOfStock: product.outOfStock || false,
-      hasVideo: product.hasVideo || false
-    });
-    setImagePreview(product.image || '');
-    setIsModalOpen(true);
+    navigate(`/admin/inventory/edit/${product.id}`);
   };
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       deleteProduct(id);
     }
+  };
+
+  // Label print URL logic
+  const getProductPublicUrl = (product) => {
+    return `${window.location.origin}/product/${product.id}`;
   };
 
   return (
@@ -183,10 +240,26 @@ const AdminInventory = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="glass-btn" onClick={() => { setEditingProduct(null); setNewProduct({ ...emptyProduct }); setImagePreview(''); setImageFile(null); setIsModalOpen(true); }}>
-          <Plus size={18} />
-          Add Product
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn-danger-outline" onClick={() => {
+            if (window.confirm('WARNING: This will permanently delete ALL products and transactions. Are you sure?')) {
+              clearInventory();
+            }
+          }}>
+            <Trash2 size={18} />
+            Clear All Data
+          </button>
+          <button className="glass-btn" onClick={() => excelInputRef.current?.click()} style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+            <Upload size={18} />
+            Excel Upload
+          </button>
+          <input type="file" ref={excelInputRef} onChange={handleExcelUpload} accept=".xlsx, .xls, .csv" style={{ display: 'none' }} />
+          
+          <button className="glass-btn" onClick={() => { setEditingProduct(null); setNewProduct({ ...emptyProduct }); setImagePreview(''); setImageFile(null); setIsModalOpen(true); }}>
+            <Plus size={18} />
+            Add Product
+          </button>
+        </div>
       </div>
 
       <div className="admin-card admin-table-container">
@@ -237,36 +310,30 @@ const AdminInventory = () => {
                     </span>
                   )}
                 </td>
-                <td>{product.price !== null ? `₹${product.price}` : <span style={{ color: '#f59e0b' }}>Ask Seller</span>}</td>
-                <td>₹{product.cost}</td>
+                <td>{product.price !== null ? `₹${product.price.toLocaleString()}` : <span style={{ color: '#f59e0b' }}>Ask Seller</span>}</td>
+                <td>₹{product.cost.toLocaleString()}</td>
                 <td>
-                  <div className="action-btns">
-                    <button className="icon-btn" onClick={() => toggleOutOfStock(product.id)} title={product.outOfStock ? 'Mark In Stock' : 'Mark Out of Stock'}>
-                      {product.outOfStock ? <CheckCircle size={16} style={{ color: '#10b981' }} /> : <AlertTriangle size={16} style={{ color: '#f59e0b' }} />}
-                    </button>
-                    <button className="icon-btn" onClick={() => setShowCodes(product)} title="View Codes">
-                      <QrIcon size={16} />
-                    </button>
-                    <button className="icon-btn" onClick={() => handleEdit(product)} title="Edit">
-                      <Edit2 size={16} />
-                    </button>
-                    <button className="icon-btn" onClick={() => handleDelete(product.id)} title="Delete" style={{ color: '#ef4444' }}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                    <div className="action-btns" style={{ gap: '1rem', display: 'flex', alignItems: 'center' }}>
+                      <button className="icon-btn" onClick={() => toggleOutOfStock(product.id)} title={product.outOfStock ? 'Mark In Stock' : 'Mark Out of Stock'} style={{ padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
+                        {product.outOfStock ? <CheckCircle size={18} style={{ color: '#10b981' }} /> : <AlertTriangle size={18} style={{ color: '#f59e0b' }} />}
+                      </button>
+                      <button className="icon-btn" onClick={() => setShowCodes(product)} title="View Codes" style={{ padding: '8px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '8px' }}>
+                        <QrIcon size={18} />
+                      </button>
+                      <button className="icon-btn" onClick={() => handleEdit(product)} title="Edit" style={{ padding: '8px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
+                        <Edit2 size={18} />
+                      </button>
+                      <button className="icon-btn" onClick={() => handleDelete(product.id)} title="Delete" style={{ padding: '8px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', color: '#ef4444' }}>
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filteredProducts.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--admin-text-dim)' }}>
-            No products found. Add your first product to get started.
-          </div>
-        )}
       </div>
 
-      {/* Add/Edit Product Modal */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) resetForm(); }}>
           <div className="modal-content modal-large">
@@ -275,7 +342,6 @@ const AdminInventory = () => {
               <button className="icon-btn" onClick={resetForm}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="form-grid">
-              {/* Image Upload Area */}
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
                 <label>Product Image</label>
                 <div 
@@ -299,29 +365,15 @@ const AdminInventory = () => {
                       <Upload size={36} />
                       <p>Drag & drop an image here</p>
                       <span>or click to browse</span>
-                      <span className="upload-hint">JPG, PNG, WebP • Max 10MB</span>
                     </div>
                   )}
-                  <input 
-                    ref={fileInputRef}
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleFileInput}
-                    style={{ display: 'none' }}
-                  />
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} />
                 </div>
-                {uploadError && (
-                  <span className="upload-error">{uploadError}</span>
-                )}
               </div>
 
               <div className="form-group" style={{ gridColumn: 'span 2' }}>
                 <label>Product Name</label>
                 <input type="text" required value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} placeholder="e.g. Premium Corrugated Box" />
-              </div>
-              <div className="form-group">
-                <label>SKU Code</label>
-                <input type="text" required value={newProduct.sku} onChange={e => setNewProduct({...newProduct, sku: e.target.value})} placeholder="e.g. BX-003" />
               </div>
               <div className="form-group">
                 <label>Category</label>
@@ -332,53 +384,62 @@ const AdminInventory = () => {
                 </select>
               </div>
               <div className="form-group">
+                <label>SKU Code (Auto-generated)</label>
+                <input type="text" required value={newProduct.sku} onChange={e => setNewProduct({...newProduct, sku: e.target.value})} />
+              </div>
+              
+              <div className="form-group">
                 <label>Cost Price (₹)</label>
-                <input type="number" value={newProduct.cost} onChange={e => setNewProduct({...newProduct, cost: e.target.value})} placeholder="0" />
+                <input type="number" value={newProduct.cost} onChange={e => setNewProduct({...newProduct, cost: e.target.value})} />
               </div>
               <div className="form-group">
-                <label>Selling Price (₹) <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Leave empty for "Ask Seller"</span></label>
-                <input type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} placeholder="Leave empty for Ask Seller" />
+                <label>Selling Price (₹)</label>
+                <input type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} placeholder="Empty for Ask Seller" />
               </div>
-              <div className="form-group">
-                <label>Initial Stock</label>
-                <input type="number" required value={newProduct.stock} onChange={e => setNewProduct({...newProduct, stock: e.target.value})} placeholder="0" />
-              </div>
-              <div className="form-group">
-                <label>Dimensions</label>
-                <input type="text" value={newProduct.dimensions} onChange={e => setNewProduct({...newProduct, dimensions: e.target.value})} placeholder="e.g. 10x8x4 inches" />
-              </div>
-              <div className="form-group">
+              
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
                 <label>Material</label>
                 <input type="text" value={newProduct.material} onChange={e => setNewProduct({...newProduct, material: e.target.value})} placeholder="e.g. Kraft Paper" />
               </div>
+
+              <div className="form-group">
+                <label>Length</label>
+                <input type="text" value={newProduct.length} onChange={e => setNewProduct({...newProduct, length: e.target.value})} placeholder="L" />
+              </div>
+              <div className="form-group">
+                <label>Width</label>
+                <input type="text" value={newProduct.width} onChange={e => setNewProduct({...newProduct, width: e.target.value})} placeholder="W" />
+              </div>
+              <div className="form-group">
+                <label>Height</label>
+                <input type="text" value={newProduct.height} onChange={e => setNewProduct({...newProduct, height: e.target.value})} placeholder="H" />
+              </div>
+              <div className="form-group">
+                <label>Weight</label>
+                <input type="text" value={newProduct.weight} onChange={e => setNewProduct({...newProduct, weight: e.target.value})} placeholder="e.g. 500g" />
+              </div>
+              <div className="form-group">
+                <label>Colour</label>
+                <input type="text" value={newProduct.colour} onChange={e => setNewProduct({...newProduct, colour: e.target.value})} placeholder="e.g. Brown" />
+              </div>
               <div className="form-group">
                 <label>Min. Order Quantity</label>
-                <input type="text" value={newProduct.moq} onChange={e => setNewProduct({...newProduct, moq: e.target.value})} placeholder="e.g. 500 pcs" />
+                <input type="text" value={newProduct.moq} onChange={e => setNewProduct({...newProduct, moq: e.target.value})} />
               </div>
 
-              {/* Out of Stock Toggle */}
-              <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                <label className="toggle-label">
-                  <div className={`toggle-switch ${newProduct.outOfStock ? 'active' : ''}`} onClick={() => setNewProduct({...newProduct, outOfStock: !newProduct.outOfStock})}>
-                    <div className="toggle-knob"></div>
-                  </div>
-                  <span>Mark as Out of Stock</span>
-                  {newProduct.outOfStock && <span className="oos-badge oos-out" style={{ marginLeft: '0.5rem' }}><XCircle size={12} /> Out of Stock</span>}
-                </label>
+              <div className="form-group">
+                <label>Stock</label>
+                <input type="number" value={newProduct.stock} onChange={e => setNewProduct({...newProduct, stock: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>Video URL (Youtube ID)</label>
+                <input type="text" value={newProduct.videoUrl} onChange={e => setNewProduct({...newProduct, videoUrl: e.target.value, hasVideo: !!e.target.value})} placeholder="e.g. dQw4w9WgXcQ" />
               </div>
 
-              <div className="form-actions" style={{ gridColumn: 'span 2', marginTop: '1rem' }}>
-                <button type="button" className="glass-btn" style={{ background: 'rgba(255,255,255,0.05)', flex: 1, justifyContent: 'center' }} onClick={resetForm}>
-                  Cancel
-                </button>
-                <button type="submit" className="glass-btn" style={{ flex: 2, justifyContent: 'center' }} disabled={uploading}>
-                  {uploading ? (
-                    <>
-                      <Loader size={18} className="spin-animation" /> Uploading...
-                    </>
-                  ) : (
-                    editingProduct ? 'Update Product' : 'Save Product'
-                  )}
+              <div className="form-actions" style={{ gridColumn: 'span 2' }}>
+                <button type="button" className="glass-btn" onClick={resetForm}>Cancel</button>
+                <button type="submit" className="glass-btn" style={{ flex: 2 }} disabled={uploading}>
+                  {uploading ? 'Processing...' : (editingProduct ? 'Update Product' : 'Save Product')}
                 </button>
               </div>
             </form>
@@ -386,29 +447,30 @@ const AdminInventory = () => {
         </div>
       )}
 
-      {/* QR/Barcode Modal */}
       {showCodes && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
             <div className="card-header">
-              <h3>Product Identifiers</h3>
+              <h3>Product Labels</h3>
               <button className="icon-btn" onClick={() => setShowCodes(null)}><X size={20} /></button>
             </div>
             <div className="codes-display" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem' }}>
               <div className="qr-section">
-                <p style={{ marginBottom: '1rem', color: 'var(--admin-text-dim)' }}>QR Code (SKU: {showCodes.sku})</p>
+                <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>{showCodes.name}</p>
+                <p style={{ marginBottom: '1rem', color: 'var(--admin-text-dim)', fontSize: '0.8rem' }}>{showCodes.dimensions}</p>
                 <div style={{ background: 'white', padding: '1rem', borderRadius: '12px', display: 'inline-block' }}>
-                  <QRCode value={showCodes.sku} size={150} />
+                  <QRCode value={getProductPublicUrl(showCodes)} size={150} />
                 </div>
+                <p style={{ marginTop: '0.5rem', fontSize: '0.7rem' }}>Scan to view details</p>
               </div>
               <div className="barcode-section">
-                <p style={{ marginBottom: '1rem', color: 'var(--admin-text-dim)' }}>Barcode</p>
+                <p style={{ marginBottom: '1rem', color: 'var(--admin-text-dim)' }}>Billing Barcode</p>
                 <div style={{ background: 'white', padding: '1rem', borderRadius: '12px', display: 'inline-block' }}>
                   <Barcode value={showCodes.sku} height={50} width={1.5} fontSize={14} />
                 </div>
               </div>
               <button className="glass-btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => window.print()}>
-                Print Labels
+                Print Label
               </button>
             </div>
           </div>

@@ -4,10 +4,10 @@ import { Box, ShoppingBag, Package, Settings, CreditCard } from 'lucide-react';
 import './CategoryNav.css';
 
 const categories = [
-  { id: 'boxes', name: 'Boxes', icon: Box },
-  { id: 'bags', name: 'Bags', icon: ShoppingBag },
+  { id: 'box', name: 'Box', icon: Box },
+  { id: 'bag', name: 'Bag', icon: ShoppingBag },
   { id: 'polythene', name: 'Polythene', icon: Package },
-  { id: 'machines', name: 'Machines', icon: Settings },
+  { id: 'machine', name: 'Machine', icon: Settings },
   { id: 'cards', name: 'Cards', icon: CreditCard },
 ];
 

@@ -9,7 +9,8 @@ import {
   Settings, 
   LogOut,
   TrendingUp,
-  Box
+  Box,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './AdminLayout.css';
@@ -20,7 +21,7 @@ const AdminSidebar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/admin/login');
   };
 
   const navItems = [
@@ -74,7 +75,7 @@ const AdminLayout = () => {
   // Protect Admin Routes
   React.useEffect(() => {
     if (!isLoggedIn || userRole !== 'admin') {
-      navigate('/login');
+      navigate('/admin/login');
     }
   }, [userRole, isLoggedIn, navigate]);
 
@@ -92,6 +93,10 @@ const AdminLayout = () => {
             <p>Welcome back, Administrator</p>
           </div>
           <div className="admin-actions">
+            <button className="glass-btn" onClick={() => navigate('/')} title="Go to Storefront">
+              <Globe size={18} />
+              View Storefront
+            </button>
             <button className="glass-btn">
               <Package size={18} />
               Quick Stock Update

@@ -7,6 +7,8 @@ import { AuthProvider } from './context/AuthContext'
 import { ERPProvider } from './context/ERPContext'
 import { CartProvider } from './context/CartContext'
 
+console.log('Main.jsx: Rendering application tree...');
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>

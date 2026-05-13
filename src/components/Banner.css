@@ -24,14 +24,30 @@
   opacity: 1;
 }
 
-.banner-image {
+.banner-image-wrapper {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
   z-index: -1;
+  overflow: hidden;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 6s linear;
+}
+
+.ken-burns {
+  animation: kenburns 20s infinite alternate;
+}
+
+@keyframes kenburns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.2) translate(-2%, -2%); }
 }
 
 .banner-overlay {
@@ -98,6 +114,19 @@
 .dot.active {
   background: var(--accent-electric-cyan);
   transform: scale(1.2);
+}
+
+.animate-slide-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideUp 0.8s forwards ease-out;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {

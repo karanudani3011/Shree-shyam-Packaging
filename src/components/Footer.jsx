@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, Phone, Mail, MapPin } from 'lucide-react';
+import { Box, Phone, Mail, MapPin, Globe } from 'lucide-react';
 import './Footer.css';
 
 const Footer = () => {
@@ -17,27 +17,29 @@ const Footer = () => {
               High-end, modern packaging solutions for industrial and commercial needs. We provide premium boxes, bags, polythene, machines, and cards.
             </p>
             <div className="social-links">
-              <a href="#" className="social-icon">FB</a>
-              <a href="#" className="social-icon">IG</a>
-              <a href="#" className="social-icon">TW</a>
-              <a href="#" className="social-icon">LI</a>
+              <a href="#" className="social-icon"><Globe size={20} /></a>
+              <a href="#" className="social-icon"><Globe size={20} /></a>
+              <a href="#" className="social-icon"><Globe size={20} /></a>
             </div>
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-heading">Quick Links</h3>
+            <h3 className="footer-heading">Product Categories</h3>
             <ul className="footer-links">
-              <li><Link to="/" className="footer-link">Home</Link></li>
-              <li><Link to="/products" className="footer-link">All Products</Link></li>
-              <li><Link to="/products?category=boxes" className="footer-link">Boxes</Link></li>
-              <li><Link to="/products?category=bags" className="footer-link">Bags</Link></li>
-              <li><Link to="/about" className="footer-link">About Us</Link></li>
+              <li><Link to="/products?category=Box" className="footer-link">Box</Link></li>
+              <li><Link to="/products?category=Bag" className="footer-link">Bag</Link></li>
+              <li><Link to="/products?category=Polythene" className="footer-link">Polythene</Link></li>
+              <li><Link to="/products?category=Machine" className="footer-link">Machine</Link></li>
+              <li><Link to="/products?category=Cards" className="footer-link">Cards</Link></li>
             </ul>
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-heading">Legal</h3>
+            <h3 className="footer-heading">Support & Legal</h3>
             <ul className="footer-links">
+              <li><Link to="/about" className="footer-link">About Us</Link></li>
+              <li><Link to="/faq" className="footer-link">FAQ</Link></li>
+              <li><Link to="/shipping" className="footer-link">Shipping Policy</Link></li>
               <li><Link to="/terms" className="footer-link">Terms & Conditions</Link></li>
               <li><Link to="/privacy" className="footer-link">Privacy Policy</Link></li>
             </ul>
@@ -48,15 +50,15 @@ const Footer = () => {
             <div className="contact-info">
               <div className="contact-item">
                 <Phone size={18} color="var(--accent-warm-orange)" />
-                <span>+1 (234) 567-8900</span>
+                <span>+91 98765 43210</span>
               </div>
               <div className="contact-item">
                 <Mail size={18} color="var(--accent-warm-orange)" />
-                <span>support@packstore.com</span>
+                <span>info@shreeshyampackaging.com</span>
               </div>
               <div className="contact-item">
                 <MapPin size={18} color="var(--accent-warm-orange)" />
-                <span>123 Industrial Park, Tech City, 10012</span>
+                <span>GIDC Industrial Estate, Rajkot, Gujarat</span>
               </div>
             </div>
           </div>

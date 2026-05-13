@@ -15,9 +15,12 @@ const ProductDetails = () => {
   const { products } = useERP();
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [customerDetails, setCustomerDetails] = useState({ name: '', phone: '' });
+  const [otpStep, setOtpStep] = useState(false);
+  const [otp, setOtp] = useState('');
 
   useEffect(() => {
-    // Find product from ERPContext
     const foundProduct = products.find(p => p.id === parseInt(id));
     setProduct(foundProduct);
     window.scrollTo(0, 0);
@@ -27,19 +30,38 @@ const ProductDetails = () => {
     return <div className="container" style={{padding: '4rem 0'}}>Loading...</div>;
   }
 
-  // Use the product's actual image from Cloudinary or fallback
-  const images = [
-    product.image || '/product.png',
-    product.image || '/product.png',
-    product.image || '/product.png'
-  ];
+  const images = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image || '/product.png', product.image || '/product.png', product.image || '/product.png', product.image || '/product.png'];
 
   const handleBuyNow = () => {
     if (!isLoggedIn) {
       navigate('/login');
       return;
     }
-    openWhatsApp(product.name);
+    setShowOrderModal(true);
+  };
+
+  const handleConfirmOrder = (e) => {
+    e.preventDefault();
+    if (!otpStep) {
+      // Mock OTP Send
+      setOtpStep(true);
+      return;
+    }
+    // Verify OTP (Mock)
+    if (otp === '1234') {
+      openWhatsApp(product.name, {
+        ...customerDetails,
+        dimensions: product.dimensions,
+        material: product.material,
+        sku: product.sku
+      });
+      setShowOrderModal(false);
+      setOtpStep(false);
+    } else {
+      alert('Invalid OTP. Use 1234 for testing.');
+    }
   };
 
   const handleAddToCart = () => {
@@ -61,11 +83,20 @@ const ProductDetails = () => {
         <div className="details-container">
           <div className="product-gallery">
             <div className="main-image-container">
-              <img src={images[activeImage]} alt={product.name} className="main-image" />
-              {product.hasVideo && activeImage === 0 && (
-                <div className="video-icon-overlay" style={{top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80px', height: '80px'}}>
-                  <PlayCircle size={40} />
+              {product.hasVideo && activeImage === images.length ? (
+                <div className="video-player-wrapper" style={{ height: '100%', background: '#000' }}>
+                   <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={`https://www.youtube.com/embed/${product.videoUrl || 'dQw4w9WgXcQ'}`} 
+                    title="Product Video" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                  ></iframe>
                 </div>
+              ) : (
+                <img src={images[activeImage] || '/product.png'} alt={product.name} className="main-image" />
               )}
               {product.outOfStock && (
                 <div className="oos-overlay-detail">
@@ -84,49 +115,53 @@ const ProductDetails = () => {
                   <img src={img} alt={`Thumbnail ${idx}`} />
                 </div>
               ))}
+              {product.hasVideo && (
+                <div 
+                  className={`thumbnail video-thumb ${activeImage === images.length ? 'active' : ''}`}
+                  onClick={() => setActiveImage(images.length)}
+                >
+                  <PlayCircle size={24} />
+                  <span>Video</span>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="product-info-section">
             <span className="product-category-label">{product.category}</span>
             <h1 className="product-details-title">{product.name}</h1>
+            <div className="sku-label" style={{ marginBottom: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>SKU: {product.sku}</div>
             
             <div className="product-details-price">
-              {product.price ? `₹${product.price.toFixed ? product.price.toFixed(2) : product.price}` : 'Ask to Seller'}
+              {product.price ? `₹${product.price.toLocaleString()}` : 'Ask to Seller'}
             </div>
 
             {product.outOfStock && (
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'rgba(239, 68, 68, 0.1)',
-                color: '#ef4444',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                marginBottom: '1rem'
-              }}>
-                <AlertTriangle size={16} />
-                Currently Out of Stock
+              <div className="oos-badge-detail">
+                <AlertTriangle size={16} /> Currently Out of Stock
               </div>
             )}
 
             <p className="product-description">
-              Experience the highest quality in industrial and commercial packaging with our premium {product.name.toLowerCase()}. 
-              Designed with durability, aesthetics, and eco-friendliness in mind, this product ensures your items are protected 
-              while presenting a high-end feel to your customers.
+              {product.description || `Experience the highest quality in industrial and commercial packaging with our premium ${product.name.toLowerCase()}. Designed with durability, aesthetics, and eco-friendliness in mind.`}
             </p>
 
             <div className="specs-grid">
               <div className="spec-item">
                 <span className="spec-label">Material</span>
-                <span className="spec-value">{product.material}</span>
+                <span className="spec-value">{product.material || 'Premium Grade'}</span>
               </div>
               <div className="spec-item">
                 <span className="spec-label">Dimensions</span>
-                <span className="spec-value">{product.dimensions}</span>
+                <span className="spec-value">{product.dimensions || 'N/A'}</span>
+              </div>
+              <div className="spec-item">
+                <span className="spec-label">Weight</span>
+                <span className="spec-value">{product.weight || 'N/A'}</span>
+              </div>
+              <div className="spec-item">
+                <span className="spec-label">Colour</span>
+                <span className="spec-value">{product.colour || 'Standard'}</span>
               </div>
               {product.moq && (
                 <div className="spec-item">
@@ -158,6 +193,67 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Order Modal */}
+      {showOrderModal && (
+        <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
+          <div className="modal-content glass-morphism animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <h2 style={{ marginBottom: '1.5rem', color: 'white' }}>Quick Order</h2>
+            <form onSubmit={handleConfirmOrder}>
+              {!otpStep ? (
+                <>
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>Your Name</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={customerDetails.name} 
+                      onChange={e => setCustomerDetails({...customerDetails, name: e.target.value})}
+                      placeholder="Enter your name"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
+                    />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>Mobile Number</label>
+                    <input 
+                      type="tel" 
+                      required 
+                      value={customerDetails.phone} 
+                      onChange={e => setCustomerDetails({...customerDetails, phone: e.target.value})}
+                      placeholder="Enter mobile number"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                    Send Verification Code
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>Verification Code (OTP)</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={otp} 
+                      onChange={e => setOtp(e.target.value)}
+                      placeholder="Enter 4-digit code"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem' }}
+                    />
+                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem', textAlign: 'center' }}>Use 1234 for demo</p>
+                  </div>
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                    Confirm & WhatsApp
+                  </button>
+                  <button type="button" className="text-btn" onClick={() => setOtpStep(false)} style={{ width: '100%', marginTop: '1rem', color: 'rgba(255,255,255,0.5)' }}>
+                    Edit Phone Number
+                  </button>
+                </>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

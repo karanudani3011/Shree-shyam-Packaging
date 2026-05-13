@@ -36,7 +36,7 @@ const Banner = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 6000); // Slightly longer for smooth viewing
     return () => clearInterval(timer);
   }, []);
 
@@ -44,17 +44,21 @@ const Banner = () => {
     <div className="banner-wrapper">
       {slides.map((slide, index) => (
         <div key={slide.id} className={`banner-slide ${index === currentSlide ? 'active' : ''}`}>
-          <img src={slide.image} alt={slide.title} className="banner-image" />
+          <div className="banner-image-wrapper">
+            <img src={slide.image} alt={slide.title} className="banner-image ken-burns" />
+          </div>
           <div className="banner-overlay"></div>
           
           <div className="container">
-            <div className="banner-content animate-fade-in">
-              <span className="banner-subtitle">{slide.subtitle}</span>
-              <h2 className="banner-title">{slide.title}</h2>
-              <p className="banner-description">{slide.description}</p>
-              <Link to={slide.link} className="btn btn-primary">
-                Explore Now <ArrowRight size={20} />
-              </Link>
+            <div className="banner-content">
+              <span className="banner-subtitle animate-slide-up">{slide.subtitle}</span>
+              <h2 className="banner-title animate-slide-up" style={{ animationDelay: '0.2s' }}>{slide.title}</h2>
+              <p className="banner-description animate-slide-up" style={{ animationDelay: '0.4s' }}>{slide.description}</p>
+              <div className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
+                <Link to={slide.link} className="btn btn-primary">
+                  Explore Now <ArrowRight size={20} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

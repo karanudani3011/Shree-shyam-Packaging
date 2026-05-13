@@ -107,7 +107,8 @@ const loadProducts = () => {
   try {
     const stored = localStorage.getItem('erp_products');
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (e) {
     console.error('Failed to load products from localStorage', e);
@@ -115,14 +116,22 @@ const loadProducts = () => {
   return defaultProducts;
 };
 
-export const CATEGORIES = ['Boxes', 'Bags', 'Polythene', 'Machines', 'Cards'];
+export const CATEGORIES = ['Box', 'Bag', 'Polythene', 'Machine', 'Cards'];
 
 export const ERPProvider = ({ children }) => {
   const [products, setProducts] = useState(loadProducts);
 
   const [customers, setCustomers] = useState([
-    { id: 1, name: 'John Doe', phone: '9876543210', email: 'john@example.com', credit: 5000 },
-    { id: 2, name: 'Tech Solutions', phone: '9988776655', email: 'info@techsol.com', credit: 0 },
+    { 
+      id: 1, 
+      name: 'John Doe', 
+      phone: '9876543210', 
+      email: 'john@example.com', 
+      credit: 5000,
+      interestEnabled: true,
+      lastInterestCalc: '2024-05-01'
+    },
+    { id: 2, name: 'Tech Solutions', phone: '9988776655', email: 'info@techsol.com', credit: 0, interestEnabled: false },
   ]);
 
   const [sellers, setSellers] = useState([
@@ -130,9 +139,16 @@ export const ERPProvider = ({ children }) => {
   ]);
 
   const [transactions, setTransactions] = useState([
-    { id: 'INV-001', type: 'sale', date: '2024-05-01', customer: 'John Doe', amount: 1500, profit: 500, status: 'paid' },
-    { id: 'PUR-001', type: 'purchase', date: '2024-05-02', seller: 'Kraft Materials Inc', amount: 8000, status: 'paid' },
+    { id: 'INV-001', type: 'sale', date: '2024-05-01', customer: 'John Doe', amount: 1500, profit: 500, status: 'paid', paymentMode: 'cash' },
+    { id: 'PUR-001', type: 'purchase', date: '2024-05-02', seller: 'Kraft Materials Inc', amount: 8000, status: 'paid', paymentMode: 'cash' },
   ]);
+
+  const [accounting, setAccounting] = useState({
+    receipts: [],
+    payments: [],
+    expenses: [],
+    income: []
+  });
 
   // Persist products to localStorage whenever they change
   useEffect(() => {
@@ -167,18 +183,44 @@ export const ERPProvider = ({ children }) => {
   };
 
   const addTransaction = (tx) => {
-    setTransactions([{ ...tx, id: tx.id || `TX-${Date.now()}`, date: new Date().toISOString().split('T')[0] }, ...transactions]);
-    if (tx.type === 'sale' && tx.customerId) {
-      // Update customer credit if status is pending
+    const newTx = { 
+      ...tx, 
+      id: tx.id || `TX-${Date.now()}`, 
+      date: new Date().toISOString().split('T')[0],
+      paymentMode: tx.paymentMode || 'cash'
+    };
+    setTransactions(prev => [newTx, ...prev]);
+    
+    // Update customer/seller balance if credit
+    if (newTx.paymentMode === 'credit') {
+      if (newTx.type === 'sale') {
+        setCustomers(prev => prev.map(c => c.name === newTx.customer ? { ...c, credit: (c.credit || 0) + newTx.amount } : c));
+      } else {
+        setSellers(prev => prev.map(s => s.name === newTx.seller ? { ...s, balance: (s.balance || 0) + newTx.amount } : s));
+      }
     }
+  };
+
+  const addAccountingEntry = (type, entry) => {
+    setAccounting(prev => ({
+      ...prev,
+      [type]: [{ ...entry, id: Date.now(), date: new Date().toISOString().split('T')[0] }, ...prev[type]]
+    }));
+  };
+
+  const clearInventory = () => {
+    setProducts([]);
+    setTransactions([]);
+    localStorage.removeItem('erp_products');
   };
 
   return (
     <ERPContext.Provider value={{
-      products, setProducts, addProduct, updateProduct, deleteProduct, updateStock, toggleOutOfStock,
+      products, setProducts, addProduct, updateProduct, deleteProduct, updateStock, toggleOutOfStock, clearInventory,
       customers, setCustomers,
       sellers, setSellers,
       transactions, addTransaction,
+      accounting, addAccountingEntry,
       CATEGORIES
     }}>
       {children}
