@@ -93,9 +93,9 @@ const AdminLayout = () => {
             <p>Welcome back, Administrator</p>
           </div>
           <div className="admin-actions">
-            <button className="glass-btn" onClick={() => navigate('/')} title="Go to Storefront">
+            <button className="glass-btn" onClick={() => navigate('/')} title="Go to Client Side">
               <Globe size={18} />
-              View Storefront
+              Go to Client Side
             </button>
             <button className="glass-btn">
               <Package size={18} />

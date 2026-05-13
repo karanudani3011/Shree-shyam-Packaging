@@ -39,7 +39,10 @@ const App = () => {
       />
       <Route 
         path="/admin/login" 
-        element={!isLoggedIn ? <AdminLogin /> : <Navigate to="/admin" replace />} 
+        element={
+          !isLoggedIn ? <AdminLogin /> : 
+          (userRole === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />)
+        } 
       />
 
       {/* 2. Admin Protected Routes */}

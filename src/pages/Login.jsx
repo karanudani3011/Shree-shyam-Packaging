@@ -18,19 +18,9 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    if (activeTab === 'admin') {
-      // Password changed to 'admin123' (no space)
-      if (formData.id === 'admin' && formData.password === 'admin123') {
-        login('admin');
-        navigate('/admin');
-      } else {
-        setError('Unauthorized Admin Access');
-      }
-    } else {
-      // User login - no real validation needed as per request
-      login('user');
-      navigate('/');
-    }
+    // User login - no real validation needed as per request
+    login('user');
+    navigate('/');
   };
 
   return (
@@ -56,36 +46,21 @@ const Login = () => {
           </div>
 
           <div className="login-right-form">
-            <div className="login-tabs-premium">
-              <button 
-                className={`tab-btn ${activeTab === 'user' ? 'active' : ''}`}
-                onClick={() => setActiveTab('user')}
-              >
-                <User size={18} /> Customer
-              </button>
-              <button 
-                className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
-                onClick={() => setActiveTab('admin')}
-              >
-                <ShieldCheck size={18} /> Admin
-              </button>
-            </div>
-
             <form className="premium-form" onSubmit={handleLogin}>
               <div className="form-header">
-                <h2>{activeTab === 'admin' ? 'Admin Portal' : 'Customer Sign In'}</h2>
-                <p>{activeTab === 'admin' ? 'Enter credentials to manage your store.' : 'Welcome back! Please enter your details.'}</p>
+                <h2>Customer Sign In</h2>
+                <p>Welcome back! Please enter your details.</p>
               </div>
 
               {error && <div className="error-alert">{error}</div>}
 
               <div className="input-group-premium">
-                <label>{activeTab === 'admin' ? 'Admin Username' : 'Email Address'}</label>
+                <label>Email Address</label>
                 <div className="input-wrapper">
                   <Mail className="input-icon" size={18} />
                   <input 
                     type="text" 
-                    placeholder={activeTab === 'admin' ? 'admin' : 'your@email.com'} 
+                    placeholder="your@email.com" 
                     required 
                     value={formData.id}
                     onChange={(e) => setFormData({...formData, id: e.target.value})}
@@ -108,7 +83,7 @@ const Login = () => {
               </div>
 
               <button type="submit" className="submit-btn-premium">
-                {activeTab === 'admin' ? 'Launch Dashboard' : 'Sign In'}
+                Sign In
                 <ArrowRight size={20} />
               </button>
 
