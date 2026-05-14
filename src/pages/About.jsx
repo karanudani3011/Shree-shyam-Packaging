@@ -10,7 +10,7 @@ const About = () => {
         <div className="container">
           <h1 className="hero-title">About Shree Shyam Packaging</h1>
           <p className="hero-subtitle">
-            Your trusted partner in premium, reliable, and sustainable packaging solutions since 2010.
+            Your trusted partner in premium, reliable, and sustainable packaging solutions since 2026.
           </p>
         </div>
       </section>
@@ -74,7 +74,7 @@ const About = () => {
             <p className="stat-label">Happy Clients</p>
           </div>
           <div className="stat-item">
-            <h3 className="stat-number">50M+</h3>
+            <h3 className="stat-number">10K+</h3>
             <p className="stat-label">Products Delivered</p>
           </div>
           <div className="stat-item">

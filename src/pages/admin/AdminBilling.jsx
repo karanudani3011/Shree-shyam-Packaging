@@ -11,11 +11,17 @@ import {
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useERP } from '../../context/ERPContext';
+import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
 
 const AdminBilling = () => {
   const { products, customers, addTransaction } = useERP();
-  const [invoiceType, setInvoiceType] = useState('sale'); // sale or purchase
+  const { currentUser } = useAuth();
+  
+  const canSale = currentUser?.role === 'admin' || currentUser?.permissions?.includes('sale');
+  const canPurchase = currentUser?.role === 'admin' || currentUser?.permissions?.includes('purchase');
+
+  const [invoiceType, setInvoiceType] = useState(canSale ? 'sale' : 'purchase'); // sale or purchase
   const [paymentMode, setPaymentMode] = useState('cash'); // cash or credit
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [dueDays, setDueDays] = useState(30);
@@ -42,6 +48,9 @@ const AdminBilling = () => {
   const calculateTotal = () => calculateSubtotal() + calculateGST();
 
   const generatePDF = () => {
+    if (invoiceType === 'sale' && !canSale) return alert('No permission to create sales');
+    if (invoiceType === 'purchase' && !canPurchase) return alert('No permission to create purchases');
+    
     const doc = new jsPDF();
     const subtotal = calculateSubtotal();
     const gst = calculateGST();
@@ -121,20 +130,24 @@ const AdminBilling = () => {
             <p style={{ color: 'var(--admin-text-dim)', fontSize: '0.9rem' }}>Generate professional tax invoices instantly</p>
           </div>
           <div className="type-switch" style={{ display: 'flex', gap: '0.75rem', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '16px' }}>
-            <button 
-              className={`glass-btn ${invoiceType === 'sale' ? 'active' : ''}`} 
-              onClick={() => setInvoiceType('sale')}
-              style={{ padding: '0.6rem 1.5rem', borderRadius: '12px' }}
-            >
-              Sales
-            </button>
-            <button 
-              className={`glass-btn ${invoiceType === 'purchase' ? 'active' : ''}`} 
-              onClick={() => setInvoiceType('purchase')}
-              style={{ padding: '0.6rem 1.5rem', borderRadius: '12px' }}
-            >
-              Purchase
-            </button>
+            {canSale && (
+              <button 
+                className={`glass-btn ${invoiceType === 'sale' ? 'active' : ''}`} 
+                onClick={() => setInvoiceType('sale')}
+                style={{ padding: '0.6rem 1.5rem', borderRadius: '12px' }}
+              >
+                Sales
+              </button>
+            )}
+            {canPurchase && (
+              <button 
+                className={`glass-btn ${invoiceType === 'purchase' ? 'active' : ''}`} 
+                onClick={() => setInvoiceType('purchase')}
+                style={{ padding: '0.6rem 1.5rem', borderRadius: '12px' }}
+              >
+                Purchase
+              </button>
+            )}
           </div>
         </div>
 

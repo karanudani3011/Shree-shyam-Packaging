@@ -19,15 +19,32 @@ import QRCode from 'react-qr-code';
 import Barcode from 'react-barcode';
 import { useERP, CATEGORIES } from '../../context/ERPContext';
 import { uploadToCloudinary } from '../../utils/cloudinary';
+import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
 
 import * as XLSX from 'xlsx';
 
 const AdminInventory = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const { products, addProduct, updateProduct, deleteProduct, toggleOutOfStock, clearInventory } = useERP();
+  
+  const hasStockPermission = currentUser?.role === 'admin' || currentUser?.permissions?.includes('stock');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  if (!hasStockPermission) {
+    return (
+      <div className="admin-inventory animate-fadeIn">
+        <div className="admin-card" style={{ textAlign: 'center', padding: '5rem', marginTop: '2rem' }}>
+          <Package size={48} color="var(--admin-danger)" style={{ marginBottom: '1.5rem', opacity: 0.5, margin: '0 auto' }} />
+          <h2 style={{ color: 'white' }}>Access Denied</h2>
+          <p style={{ color: 'var(--admin-text-dim)' }}>You do not have permission to view or manage inventory.</p>
+        </div>
+      </div>
+    );
+  }
   const [showCodes, setShowCodes] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [imageFile, setImageFile] = useState(null);

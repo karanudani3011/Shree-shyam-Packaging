@@ -14,13 +14,22 @@ const Login = () => {
     password: ''
   });
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // User login - no real validation needed as per request
-    login('user');
-    navigate('/');
+    try {
+      // Pass both id and password. AuthContext will decide if it's a mock or real login.
+      const res = await login(formData.id, formData.password);
+      
+      if (res.success) {
+        navigate('/');
+      } else {
+        setError(res.message || 'Invalid email or password');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (

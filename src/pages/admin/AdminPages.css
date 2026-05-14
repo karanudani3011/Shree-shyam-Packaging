@@ -1,17 +1,17 @@
 :root {
-  --admin-primary: #6366f1;
-  --admin-primary-glow: rgba(99, 102, 241, 0.5);
-  --admin-secondary: #a855f7;
-  --admin-accent: #06b6d4;
-  --admin-bg: #0b0f1a;
-  --admin-card-bg: rgba(30, 41, 59, 0.4);
-  --admin-border: rgba(255, 255, 255, 0.08);
-  --admin-text: #f8fafc;
+  --admin-primary: #06b6d4; /* Cyan */
+  --admin-primary-glow: rgba(6, 182, 212, 0.5);
+  --admin-secondary: #3b82f6; /* Blue */
+  --admin-accent: #22d3ee;
+  --admin-bg: #020617; /* Deep Navy */
+  --admin-card-bg: rgba(15, 23, 42, 0.6);
+  --admin-border: rgba(255, 255, 255, 0.06);
+  --admin-text: #f1f5f9;
   --admin-text-dim: #94a3b8;
   --admin-success: #10b981;
-  --admin-danger: #ef4444;
-  --admin-warning: #f59e0b;
-  --admin-glass-blur: blur(16px);
+  --admin-danger: #f43f5e;
+  --admin-warning: #fbbf24;
+  --admin-glass-blur: blur(20px);
 }
 
 .admin-dashboard {

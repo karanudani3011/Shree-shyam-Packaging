@@ -8,20 +8,41 @@ import {
   Search
 } from 'lucide-react';
 import { useERP } from '../../context/ERPContext';
+import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
 
 const AdminAccounting = () => {
   const { accounting, addAccountingEntry, transactions } = useERP();
-  const [activeTab, setActiveTab] = useState('receipts');
-  const [showModal, setShowModal] = useState(false);
-  const [newEntry, setNewEntry] = useState({ description: '', amount: '', party: '', category: 'General' });
-
-  const categories = {
+  const { currentUser } = useAuth();
+  
+  const allCategories = {
     receipts: ['Customer Payment', 'Loan', 'Other Income'],
     payments: ['Supplier Payment', 'Loan Repayment', 'Utility'],
     expenses: ['Rent', 'Salary', 'Electricity', 'Transport', 'Marketing', 'Tea/Snacks', 'Other'],
     income: ['Interest', 'Commission', 'Scrap Sale', 'Other']
   };
+
+  // Filter categories based on permissions
+  const categories = Object.keys(allCategories).reduce((acc, key) => {
+    const isIncomeType = key === 'receipts' || key === 'income';
+    const isExpenseType = key === 'payments' || key === 'expenses';
+    
+    if (currentUser?.role === 'admin') {
+      acc[key] = allCategories[key];
+    } else {
+      if (isIncomeType && currentUser?.permissions?.includes('income')) {
+        acc[key] = allCategories[key];
+      }
+      if (isExpenseType && currentUser?.permissions?.includes('expense')) {
+        acc[key] = allCategories[key];
+      }
+    }
+    return acc;
+  }, {});
+
+  const [activeTab, setActiveTab] = useState(Object.keys(categories)[0] || 'receipts');
+  const [showModal, setShowModal] = useState(false);
+  const [newEntry, setNewEntry] = useState({ description: '', amount: '', party: '', category: 'General' });
 
   const handleSubmit = (e) => {
     e.preventDefault();

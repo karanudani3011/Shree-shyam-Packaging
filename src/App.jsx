@@ -26,27 +26,30 @@ import AdminAccounting from './pages/admin/AdminAccounting';
 import AdminReports from './pages/admin/AdminReports';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminEditProduct from './pages/admin/AdminEditProduct';
+import AdminSettings from './pages/admin/AdminSettings.jsx';
 
 const App = () => {
-  const { isLoggedIn, userRole } = useAuth();
+  const { isLoggedIn, userRole, loading } = useAuth();
+
+  if (loading) return null;
 
   return (
     <Routes>
       {/* 1. Login Routes */}
       <Route 
         path="/login" 
-        element={!isLoggedIn ? <Login /> : <Navigate to={userRole === 'admin' ? "/admin" : "/"} replace />} 
+        element={!isLoggedIn ? <Login /> : <Navigate to="/" replace />} 
       />
       <Route 
         path="/admin/login" 
         element={
           !isLoggedIn ? <AdminLogin /> : 
-          (userRole === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />)
+          <Navigate to="/admin" replace />
         } 
       />
 
       {/* 2. Admin Protected Routes */}
-      <Route path="/admin" element={isLoggedIn && userRole === 'admin' ? <AdminLayout /> : <Navigate to="/admin/login" replace />}>
+      <Route path="/admin" element={isLoggedIn && (userRole === 'admin' || userRole === 'staff') ? <AdminLayout /> : <Navigate to="/admin/login" replace />}>
         <Route index element={<AdminDashboard />} />
         <Route path="inventory" element={<AdminInventory />} />
         <Route path="inventory/edit/:id" element={<AdminEditProduct />} />
@@ -54,12 +57,13 @@ const App = () => {
         <Route path="crm" element={<AdminCRM />} />
         <Route path="accounting" element={<AdminAccounting />} />
         <Route path="reports" element={<AdminReports />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       {/* 3. Customer Routes & Global Layout */}
       <Route 
         path="/" 
-        element={!isLoggedIn ? <Navigate to="/login" replace /> : (userRole === 'admin' ? <Navigate to="/admin" replace /> : (
+        element={!isLoggedIn ? <Navigate to="/login" replace /> : (
           <div className="app">
             <Header />
             <CartSidebar />
@@ -68,17 +72,17 @@ const App = () => {
             </main>
             <Footer />
           </div>
-        ))} 
+        )} 
       />
       
-      <Route path="/products" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductListing /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/product/:id" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductDetails /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/about" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><main className="main-content"><About /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/terms" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><main className="main-content"><Terms /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/privacy" element={isLoggedIn && userRole === 'user' ? <div className="app"><Header /><main className="main-content"><Privacy /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/products" element={isLoggedIn ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductListing /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/product/:id" element={isLoggedIn ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductDetails /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/about" element={isLoggedIn ? <div className="app"><Header /><main className="main-content"><About /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/terms" element={isLoggedIn ? <div className="app"><Header /><main className="main-content"><Terms /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/privacy" element={isLoggedIn ? <div className="app"><Header /><main className="main-content"><Privacy /></main><Footer /></div> : <Navigate to="/login" replace />} />
 
       {/* 4. Global Fallback */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
