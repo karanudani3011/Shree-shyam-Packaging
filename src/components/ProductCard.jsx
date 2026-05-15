@@ -22,10 +22,6 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    if (!isLoggedIn) {
-      navigate('/login');
-      return;
-    }
     if (product.outOfStock) return;
     addToCart(product);
   };

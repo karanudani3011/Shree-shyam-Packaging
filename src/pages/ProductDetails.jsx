@@ -65,10 +65,6 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = () => {
-    if (!isLoggedIn) {
-      navigate('/login');
-      return;
-    }
     if (product.outOfStock) return;
     addToCart(product);
   };

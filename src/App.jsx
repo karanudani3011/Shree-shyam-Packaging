@@ -43,8 +43,9 @@ const App = () => {
       <Route 
         path="/admin/login" 
         element={
-          !isLoggedIn ? <AdminLogin /> : 
-          <Navigate to="/admin" replace />
+          isLoggedIn && (userRole === 'admin' || userRole === 'staff') ? 
+          <Navigate to="/admin" replace /> : 
+          <AdminLogin />
         } 
       />
 
@@ -63,7 +64,7 @@ const App = () => {
       {/* 3. Customer Routes & Global Layout */}
       <Route 
         path="/" 
-        element={!isLoggedIn ? <Navigate to="/login" replace /> : (
+        element={
           <div className="app">
             <Header />
             <CartSidebar />
@@ -72,14 +73,14 @@ const App = () => {
             </main>
             <Footer />
           </div>
-        )} 
+        } 
       />
       
-      <Route path="/products" element={isLoggedIn ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductListing /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/product/:id" element={isLoggedIn ? <div className="app"><Header /><CartSidebar /><main className="main-content"><ProductDetails /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/about" element={isLoggedIn ? <div className="app"><Header /><main className="main-content"><About /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/terms" element={isLoggedIn ? <div className="app"><Header /><main className="main-content"><Terms /></main><Footer /></div> : <Navigate to="/login" replace />} />
-      <Route path="/privacy" element={isLoggedIn ? <div className="app"><Header /><main className="main-content"><Privacy /></main><Footer /></div> : <Navigate to="/login" replace />} />
+      <Route path="/products" element={<div className="app"><Header /><CartSidebar /><main className="main-content"><ProductListing /></main><Footer /></div>} />
+      <Route path="/product/:id" element={<div className="app"><Header /><CartSidebar /><main className="main-content"><ProductDetails /></main><Footer /></div>} />
+      <Route path="/about" element={<div className="app"><Header /><main className="main-content"><About /></main><Footer /></div>} />
+      <Route path="/terms" element={<div className="app"><Header /><main className="main-content"><Terms /></main><Footer /></div>} />
+      <Route path="/privacy" element={<div className="app"><Header /><main className="main-content"><Privacy /></main><Footer /></div>} />
 
       {/* 4. Global Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

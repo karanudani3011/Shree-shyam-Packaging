@@ -14,7 +14,7 @@ const AdminLogin = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const result = await login(email, password);
+    const result = await login(email, password, true);
     if (result.success) {
       navigate('/admin');
     } else {

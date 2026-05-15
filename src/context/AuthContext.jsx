@@ -24,37 +24,40 @@ export const AuthProvider = ({ children }) => {
     checkSession();
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (username, password, isAdminLogin = false) => {
     try {
-      // 1. Try Admin/Staff login first
-      const { data, error } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('username', username)
-        .eq('password', password)
-        .maybeSingle();
+      if (isAdminLogin) {
+        // Strict Admin/Staff login check
+        const { data, error } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('username', username)
+          .eq('password', password)
+          .maybeSingle();
 
-      if (!error && data) {
+        if (!error && data) {
+          setIsLoggedIn(true);
+          setUserRole(data.role);
+          setCurrentUser(data);
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('currentUser', JSON.stringify(data));
+          return { success: true, role: data.role };
+        }
+        
+        return { success: false, message: 'Invalid Administrator Credentials' };
+      } else {
+        // Customer login (Mock for now)
+        const mockUser = { id: `cust-${Date.now()}`, username: username || 'Customer', role: 'user' };
         setIsLoggedIn(true);
-        setUserRole(data.role);
-        setCurrentUser(data);
+        setUserRole('user');
+        setCurrentUser(mockUser);
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userRole', data.role);
-        localStorage.setItem('currentUser', JSON.stringify(data));
-        return { success: true, role: data.role };
+        localStorage.setItem('userRole', 'user');
+        localStorage.setItem('currentUser', JSON.stringify(mockUser));
+        
+        return { success: true, role: 'user' };
       }
-
-      // 2. If it's not an admin/staff, treat as a customer login (Mock for now)
-      // This ensures the customer side works with any email/password as it did before.
-      const mockUser = { id: `cust-${Date.now()}`, username: username || 'Customer', role: 'user' };
-      setIsLoggedIn(true);
-      setUserRole('user');
-      setCurrentUser(mockUser);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userRole', 'user');
-      localStorage.setItem('currentUser', JSON.stringify(mockUser));
-      
-      return { success: true, role: 'user' };
     } catch (err) {
       console.error('Login error:', err);
       return { success: false, message: 'Server error' };
