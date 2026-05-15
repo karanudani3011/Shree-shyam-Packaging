@@ -57,12 +57,17 @@ const AdminEditProduct = () => {
       }
 
       const updatedData = {
-        ...product,
+        name: product.name,
+        category: product.category,
+        sku: product.sku,
         image: imageUrl,
         dimensions: finalDimensions,
         price: product.price === '' ? null : Number(product.price),
         cost: Number(product.cost),
         stock: Number(product.stock),
+        material: product.material,
+        moq: product.moq,
+        out_of_stock: product.out_of_stock,
       };
 
       updateProduct(Number(id), updatedData);

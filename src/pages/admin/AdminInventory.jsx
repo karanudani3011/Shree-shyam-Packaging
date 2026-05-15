@@ -77,7 +77,7 @@ const AdminInventory = () => {
     colour: '',
     material: '',
     moq: '',
-    outOfStock: false,
+    out_of_stock: false,
     hasVideo: false,
     videoUrl: ''
   };
@@ -206,12 +206,17 @@ const AdminInventory = () => {
       }
 
       const productData = {
-        ...newProduct,
+        name: newProduct.name,
+        category: newProduct.category,
+        sku: newProduct.sku,
         image: imageUrl,
         dimensions: finalDimensions,
         price: newProduct.price === '' || newProduct.price === null ? null : Number(newProduct.price),
         cost: newProduct.cost === '' ? 0 : Number(newProduct.cost),
         stock: Number(newProduct.stock),
+        material: newProduct.material,
+        moq: newProduct.moq,
+        out_of_stock: newProduct.out_of_stock || false,
       };
 
       if (editingProduct) {
@@ -296,7 +301,7 @@ const AdminInventory = () => {
           </thead>
           <tbody>
             {filteredProducts.map(product => (
-              <tr key={product.id} style={{ opacity: product.outOfStock ? 0.6 : 1 }}>
+              <tr key={product.id} style={{ opacity: product.out_of_stock ? 0.6 : 1 }}>
                 <td>
                   <div className="table-img-wrapper">
                     <img 
@@ -317,7 +322,7 @@ const AdminInventory = () => {
                   </span>
                 </td>
                 <td>
-                  {product.outOfStock ? (
+                  {product.out_of_stock ? (
                     <span className="oos-badge oos-out">
                       <XCircle size={14} /> Out of Stock
                     </span>
@@ -331,8 +336,8 @@ const AdminInventory = () => {
                 <td>₹{product.cost.toLocaleString()}</td>
                 <td>
                     <div className="action-btns" style={{ gap: '1rem', display: 'flex', alignItems: 'center' }}>
-                      <button className="icon-btn" onClick={() => toggleOutOfStock(product.id)} title={product.outOfStock ? 'Mark In Stock' : 'Mark Out of Stock'} style={{ padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
-                        {product.outOfStock ? <CheckCircle size={18} style={{ color: '#10b981' }} /> : <AlertTriangle size={18} style={{ color: '#f59e0b' }} />}
+                      <button className="icon-btn" onClick={() => toggleOutOfStock(product.id)} title={product.out_of_stock ? 'Mark In Stock' : 'Mark Out of Stock'} style={{ padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
+                        {product.out_of_stock ? <CheckCircle size={18} style={{ color: '#10b981' }} /> : <AlertTriangle size={18} style={{ color: '#f59e0b' }} />}
                       </button>
                       <button className="icon-btn" onClick={() => setShowCodes(product)} title="View Codes" style={{ padding: '8px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '8px' }}>
                         <QrIcon size={18} />
@@ -402,7 +407,7 @@ const AdminInventory = () => {
               </div>
               <div className="form-group">
                 <label>SKU Code (Auto-generated)</label>
-                <input type="text" required value={newProduct.sku} onChange={e => setNewProduct({...newProduct, sku: e.target.value})} />
+                <input type="text" value={newProduct.sku} readOnly style={{ opacity: 0.7, cursor: 'not-allowed' }} />
               </div>
               
               <div className="form-group">

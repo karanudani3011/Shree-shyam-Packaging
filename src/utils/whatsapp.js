@@ -1,5 +1,5 @@
 export const openWhatsApp = (productName, details = {}) => {
-  const phoneNumber = "1234567890"; // Placeholder phone number
+  const phoneNumber = "919574504098"; 
 
   let message = `Hello, I want to order this product:\n\n`;
   message += `Product: ${productName}\n`;
@@ -18,7 +18,7 @@ export const openWhatsApp = (productName, details = {}) => {
 };
 
 export const openWhatsAppCart = (cartItems) => {
-  const phoneNumber = "9574504098"; // Placeholder phone number
+  const phoneNumber = "919574504098"; 
 
   let message = "Hello, I want to order the following items from my cart:\n\n";
 
