@@ -63,11 +63,11 @@ const AdminInventory = () => {
 
   const emptyProduct = {
     name: '',
-    category: 'Box',
+    category: 'Dabbi',
     stock: 0,
     price: '',
     cost: '',
-    sku: '',
+    sku: 'A',
     image: '',
     dimensions: '',
     length: '',
@@ -87,23 +87,21 @@ const AdminInventory = () => {
   // Auto-SKU Logic
   const generateSKU = (category) => {
     const prefixMap = {
-      'Box': 'A',
-      'Bag': 'B',
-      'Polythene': 'P',
-      'Machine': 'M',
-      'Cards': 'C'
+      'Dabbi': 'A',
+      'bags': 'B',
+      'cards': 'C',
+      'plastic box': 'D',
+      'paper boxes': 'E',
+      'Tap': 'F'
     };
-    const prefix = prefixMap[category] || 'X';
-    const categoryProducts = products.filter(p => p.category === category);
-    const nextNum = categoryProducts.length + 1;
-    return `${prefix}${nextNum}`;
+    return prefixMap[category] || 'X';
   };
 
   useEffect(() => {
     if (!editingProduct && newProduct.category) {
       setNewProduct(prev => ({ ...prev, sku: generateSKU(newProduct.category) }));
     }
-  }, [newProduct.category, editingProduct, products]);
+  }, [newProduct.category, editingProduct]);
 
   const handleExcelUpload = (e) => {
     const file = e.target.files[0];
@@ -120,8 +118,8 @@ const AdminInventory = () => {
       data.forEach(item => {
         addProduct({
           name: item.Name || 'Unnamed Product',
-          category: item.Category || 'Box',
-          sku: item.SKU || generateSKU(item.Category || 'Box'),
+          category: item.Category || 'Dabbi',
+          sku: item.SKU || generateSKU(item.Category || 'Dabbi'),
           price: item.Price ? Number(item.Price) : null,
           cost: item.Cost ? Number(item.Cost) : 0,
           stock: item.Stock ? Number(item.Stock) : 0,

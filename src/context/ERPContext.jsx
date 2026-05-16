@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabase';
 
 const ERPContext = createContext();
 
-export const CATEGORIES = ['Box', 'Bag', 'Polythene', 'Machine', 'Cards'];
+export const CATEGORIES = ['Dabbi', 'bags', 'cards', 'plastic box', 'paper boxes', 'Tap'];
 
 export const ERPProvider = ({ children }) => {
   const [products, setProducts] = useState([]);

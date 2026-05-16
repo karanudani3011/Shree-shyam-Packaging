@@ -149,7 +149,7 @@ const AdminEditProduct = () => {
 
           <div className="form-group">
             <label>SKU Code</label>
-            <input type="text" value={product.sku} readOnly style={{ opacity: 0.7 }} />
+            <input type="text" value={product.sku} readOnly style={{ opacity: 0.7, cursor: 'not-allowed' }} />
           </div>
 
           <div className="form-group">
