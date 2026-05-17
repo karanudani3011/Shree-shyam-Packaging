@@ -37,7 +37,7 @@ const AdminLogin = () => {
                 <ShieldCheck size={32} />
               </div>
             </div>
-            
+
             <div className="form-header" style={{ textAlign: 'center' }}>
               <h2 style={{ fontSize: '2rem' }}>Admin <span>Portal</span></h2>
               <p>Secure Enterprise Access Only</p>
@@ -50,12 +50,12 @@ const AdminLogin = () => {
                 <label>Admin ID</label>
                 <div className="input-wrapper">
                   <Mail className="input-icon" size={20} />
-                  <input 
-                    type="text" 
-                    placeholder="Enter Admin Username" 
+                  <input
+                    type="text"
+                    placeholder="Enter Admin Username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
               </div>
@@ -64,12 +64,12 @@ const AdminLogin = () => {
                 <label>Security Key</label>
                 <div className="input-wrapper">
                   <Lock className="input-icon" size={20} />
-                  <input 
-                    type="password" 
-                    placeholder="••••••••" 
+                  <input
+                    type="password"
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
               </div>
@@ -81,7 +81,7 @@ const AdminLogin = () => {
             </form>
 
             <div className="form-footer" style={{ marginTop: '3rem' }}>
-              <p>© 2024 PackStore ERP Security System</p>
+              <p>© 2026 PackStore ERP Security System</p>
             </div>
           </div>
         </div>

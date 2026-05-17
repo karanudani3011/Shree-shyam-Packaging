@@ -10,9 +10,11 @@ import {
   LogOut,
   TrendingUp,
   Box,
-  Globe
+  Globe,
+  X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useERP } from '../../context/ERPContext';
 import './AdminLayout.css';
 
 const AdminSidebar = () => {
@@ -85,7 +87,14 @@ const AdminSidebar = () => {
 
 const AdminLayout = () => {
   const { userRole, isLoggedIn, currentUser } = useAuth();
+  const { products, updateProduct } = useERP();
   const navigate = useNavigate();
+
+  const [isStockModalOpen, setIsStockModalOpen] = React.useState(false);
+  const [selectedProductId, setSelectedProductId] = React.useState('');
+  const [adjustType, setAdjustType] = React.useState('add'); // 'add' or 'set'
+  const [adjustQty, setAdjustQty] = React.useState('');
+  const [updatingStock, setUpdatingStock] = React.useState(false);
 
   // Protect Admin Routes
   React.useEffect(() => {
@@ -97,6 +106,37 @@ const AdminLayout = () => {
   if (!isLoggedIn || (userRole !== 'admin' && userRole !== 'staff')) {
     return null; // Don't render anything while redirecting
   }
+
+  const handleQuickStockUpdate = async (e) => {
+    e.preventDefault();
+    if (!selectedProductId) return alert('Please select a product');
+    if (adjustQty === '') return alert('Please enter a quantity');
+
+    setUpdatingStock(true);
+    const product = products.find(p => p.id === Number(selectedProductId));
+    if (product) {
+      const newStock = adjustType === 'add' 
+        ? (product.stock || 0) + Number(adjustQty)
+        : Number(adjustQty);
+
+      if (newStock < 0) {
+        alert('Stock cannot be negative');
+        setUpdatingStock(false);
+        return;
+      }
+
+      const { success, error } = await updateProduct(product.id, { stock: newStock });
+      if (success) {
+        alert(`Stock updated successfully! New stock: ${newStock}`);
+        setIsStockModalOpen(false);
+        setSelectedProductId('');
+        setAdjustQty('');
+      } else {
+        alert('Failed to update stock: ' + (error?.message || 'Unknown error'));
+      }
+    }
+    setUpdatingStock(false);
+  };
 
   const handleGoToClient = () => {
     // Force window location change to bypass React Router's Navigate logic in App.jsx if needed
@@ -134,7 +174,7 @@ const AdminLayout = () => {
               <Globe size={18} />
               Go to Client Side
             </button>
-            <button className="glass-btn">
+            <button className="glass-btn" onClick={() => setIsStockModalOpen(true)} title="Quick Stock Update">
               <Package size={18} />
               Quick Stock Update
             </button>
@@ -142,6 +182,75 @@ const AdminLayout = () => {
         </header>
         <Outlet />
       </main>
+
+      {isStockModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsStockModalOpen(false)}>
+          <div className="modal-content glass-morphism animate-slideUp" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px' }}>
+            <div className="card-header">
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Package size={22} color="var(--admin-primary)" />
+                Quick Stock Update
+              </h3>
+              <button className="icon-btn" onClick={() => setIsStockModalOpen(false)}><X size={20} /></button>
+            </div>
+            
+            <form onSubmit={handleQuickStockUpdate} className="form-grid" style={{ marginTop: '1rem' }}>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Select Product</label>
+                <select 
+                  value={selectedProductId} 
+                  onChange={e => {
+                    setSelectedProductId(e.target.value);
+                    setAdjustQty('');
+                  }}
+                  required
+                >
+                  <option value="">-- Choose a Product --</option>
+                  {products.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} (SKU: {p.sku})</option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedProductId && (() => {
+                const p = products.find(prod => prod.id === Number(selectedProductId));
+                return p ? (
+                  <>
+                    <div className="form-group" style={{ gridColumn: 'span 2', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--admin-border)' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--admin-text-dim)' }}>Current Stock: </span>
+                      <strong style={{ color: 'white', fontSize: '1rem' }}>{p.stock} units</strong>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Update Action</label>
+                      <select value={adjustType} onChange={e => setAdjustType(e.target.value)}>
+                        <option value="add">Add to Stock (+)</option>
+                        <option value="set">Set Total Stock (=)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>{adjustType === 'add' ? 'Quantity to Add' : 'New Total Stock'}</label>
+                      <input 
+                        type="number" 
+                        required 
+                        min={adjustType === 'add' ? undefined : 0}
+                        value={adjustQty}
+                        onChange={e => setAdjustQty(e.target.value)}
+                        placeholder={adjustType === 'add' ? 'e.g. 50 or -20' : 'e.g. 150'}
+                      />
+                    </div>
+                  </>
+                ) : null;
+              })()}
+
+              <button type="submit" className="glass-btn" style={{ gridColumn: 'span 2', marginTop: '1.5rem', background: 'var(--admin-primary)', justifyContent: 'center', padding: '1rem' }} disabled={updatingStock}>
+                {updatingStock ? 'Updating...' : 'Update Stock'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
