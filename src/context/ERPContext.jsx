@@ -108,14 +108,29 @@ export const ERPProvider = ({ children }) => {
   };
 
   const addTransaction = async (tx) => {
+    // Robust mapping for DB schema
+    const dbTx = {
+      id: tx.id || `tx-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      type: tx.type,
+      customer: tx.type === 'sale' ? (tx.customer || 'Walk-in Customer') : null,
+      seller: tx.type === 'purchase' ? (tx.customer || 'Main Supplier') : null,
+      amount: Number(tx.amount),
+      status: tx.status,
+      payment_mode: tx.paymentMode || tx.payment_mode || 'cash',
+      items: tx.items || []
+    };
+
     const { data, error } = await supabase
       .from('transactions')
-      .insert([tx])
+      .insert([dbTx])
       .select();
+    
+    if (error) {
+      console.error("Supabase transaction insert error:", error);
+    }
     
     if (!error && data) {
       setTransactions(prev => [data[0], ...prev]);
-      // Update customer/seller balance if credit (In a real app, this should be a DB trigger or function)
     }
     return { success: !error, error };
   };

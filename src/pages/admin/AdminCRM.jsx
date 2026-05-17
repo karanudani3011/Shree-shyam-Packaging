@@ -17,7 +17,7 @@ const AdminCRM = () => {
   const [activeTab, setActiveTab] = useState('customers');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const INTEREST_RATE = 2; // 2% per month
+  const INTEREST_RATE = 1.5; // 1.5% per month
 
   const calculateInterest = (tx) => {
     if (tx.status !== 'pending' || tx.paymentMode !== 'credit') return 0;

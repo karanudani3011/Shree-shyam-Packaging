@@ -8,14 +8,14 @@ import {
   Package,
   Calendar
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useERP } from '../../context/ERPContext';
 import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
 
 const AdminBilling = () => {
-  const { products, customers, addTransaction } = useERP();
+  const { products, customers, addTransaction, updateProduct } = useERP();
   const { currentUser } = useAuth();
   
   const canSale = currentUser?.role === 'admin' || currentUser?.permissions?.includes('sale');
@@ -33,11 +33,19 @@ const AdminBilling = () => {
 
   const handleProductChange = (index, productId) => {
     const product = products.find(p => p.id === Number(productId));
+    
+    // Retrieve the locally remembered price for this product, if any
+    const rememberedPrices = JSON.parse(localStorage.getItem('last_billed_prices') || '{}');
+    const rememberedPrice = rememberedPrices[productId];
+    
+    // Default to remembered price if present, otherwise fall back to product's retail price
+    const defaultPrice = rememberedPrice !== undefined ? rememberedPrice : (product && product.price !== null ? product.price : 0);
+
     const newItems = [...items];
     newItems[index] = { 
       productId, 
       quantity: 1, 
-      price: product ? product.price : 0,
+      price: defaultPrice,
       name: product ? product.name : ''
     };
     setItems(newItems);
@@ -90,7 +98,7 @@ const AdminBilling = () => {
       `INR ${(item.price * item.quantity).toLocaleString()}`
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 65,
       head: [['#', 'Description', 'Qty', 'Unit Price', 'Amount']],
       body: tableData,
@@ -117,6 +125,17 @@ const AdminBilling = () => {
       dueDays: paymentMode === 'credit' ? dueDays : 0,
       items: items
     });
+
+    // Automatically update locally remembered product prices based on this bill so the next bill gets the same default price
+    if (invoiceType === 'sale') {
+      const rememberedPrices = JSON.parse(localStorage.getItem('last_billed_prices') || '{}');
+      items.forEach(item => {
+        if (item.productId && item.price !== undefined) {
+          rememberedPrices[item.productId] = item.price;
+        }
+      });
+      localStorage.setItem('last_billed_prices', JSON.stringify(rememberedPrices));
+    }
 
     alert('Invoice saved and transaction recorded!');
   };
