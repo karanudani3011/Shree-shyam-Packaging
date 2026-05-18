@@ -48,7 +48,7 @@ const AdminReports = () => {
     return acc;
   }, []);
 
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+  const COLORS = ['#ff7a00', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(transactions);
@@ -89,7 +89,7 @@ const AdminReports = () => {
                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                 />
                 <Legend />
-                <Bar dataKey="amount" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="amount" fill="#ff7a00" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

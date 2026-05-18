@@ -65,7 +65,7 @@ const AdminDashboard = () => {
           icon={<TrendingUp />} 
           trend="up" 
           trendValue="+12.5%" 
-          color="#6366f1"
+          color="#ff7a00"
         />
         <StatCard 
           title="Total Customers" 
@@ -107,8 +107,8 @@ const AdminDashboard = () => {
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#ff7a00" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#ff7a00" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
                     borderRadius: '12px'
                   }} 
                 />
-                <Area type="monotone" dataKey="sales" stroke="#6366f1" fillOpacity={1} fill="url(#colorSales)" />
+                <Area type="monotone" dataKey="sales" stroke="#ff7a00" fillOpacity={1} fill="url(#colorSales)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

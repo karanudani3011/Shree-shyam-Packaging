@@ -73,7 +73,7 @@ const AdminAccounting = () => {
             </div>
             <div>
               <p style={{ fontSize: '0.875rem', color: 'var(--admin-text-dim)' }}>Total Revenue</p>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '700' }}>₹{totalIncome.toLocaleString()}</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--admin-text)' }}>₹{totalIncome.toLocaleString()}</h3>
             </div>
           </div>
         </div>
@@ -84,13 +84,13 @@ const AdminAccounting = () => {
             </div>
             <div>
               <p style={{ fontSize: '0.875rem', color: 'var(--admin-text-dim)' }}>Total Outflow</p>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '700' }}>₹{(totalPurchases + totalExpenses).toLocaleString()}</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--admin-text)' }}>₹{(totalPurchases + totalExpenses).toLocaleString()}</h3>
             </div>
           </div>
         </div>
         <div className="admin-card">
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <div style={{ padding: '0.75rem', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+            <div style={{ padding: '0.75rem', borderRadius: '12px', background: 'rgba(255, 122, 0, 0.1)', color: 'var(--admin-primary)' }}>
               <Wallet size={24} />
             </div>
             <div>

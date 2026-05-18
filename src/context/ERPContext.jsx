@@ -7,8 +7,19 @@ export const CATEGORIES = ['Dabbi', 'bags', 'cards', 'plastic box', 'paper boxes
 
 export const ERPProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [sellers, setSellers] = useState([]);
+  const [customers, setCustomers] = useState(() => {
+    const saved = localStorage.getItem('erp_customers');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, name: 'John Doe', phone: '9876543210', email: 'john@example.com', credit: 5000, interestEnabled: false },
+      { id: 2, name: 'Tech Solutions', phone: '9988776655', email: 'info@techsol.com', credit: 0, interestEnabled: false },
+    ];
+  });
+  const [sellers, setSellers] = useState(() => {
+    const saved = localStorage.getItem('erp_sellers');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, name: 'Kraft Materials Inc', phone: '9123456789', email: 'sales@kraft.com', balance: 12000 },
+    ];
+  });
   const [transactions, setTransactions] = useState([]);
   const [accounting, setAccounting] = useState({
     receipts: [],
@@ -21,6 +32,15 @@ export const ERPProvider = ({ children }) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Save to local storage when state changes
+  useEffect(() => {
+    localStorage.setItem('erp_customers', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('erp_sellers', JSON.stringify(sellers));
+  }, [sellers]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -42,15 +62,6 @@ export const ERPProvider = ({ children }) => {
         }, { receipts: [], payments: [], expenses: [], income: [] });
         setAccounting(organized);
       }
-
-      // Customers & Sellers (Static for now, can be moved to Supabase later if needed)
-      setCustomers([
-        { id: 1, name: 'John Doe', phone: '9876543210', email: 'john@example.com', credit: 5000 },
-        { id: 2, name: 'Tech Solutions', phone: '9988776655', email: 'info@techsol.com', credit: 0 },
-      ]);
-      setSellers([
-        { id: 1, name: 'Kraft Materials Inc', phone: '9123456789', email: 'sales@kraft.com', balance: 12000 },
-      ]);
 
     } catch (err) {
       console.error('Error fetching ERP data:', err);
@@ -150,6 +161,19 @@ export const ERPProvider = ({ children }) => {
     return { success: !error, error };
   };
 
+  const updateTransactionStatus = async (id, status) => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .update({ status })
+      .eq('id', id)
+      .select();
+    
+    if (!error && data) {
+      setTransactions(prev => prev.map(t => t.id === id ? data[0] : t));
+    }
+    return { success: !error, error };
+  };
+
   const clearInventory = async () => {
     // Dangerous operation, handle with care
     const { error: err1 } = await supabase.from('inventory').delete().neq('id', 0);
@@ -165,7 +189,7 @@ export const ERPProvider = ({ children }) => {
       products, addProduct, updateProduct, deleteProduct, updateStock, toggleOutOfStock, clearInventory,
       customers, setCustomers,
       sellers, setSellers,
-      transactions, addTransaction,
+      transactions, addTransaction, updateTransactionStatus,
       accounting, addAccountingEntry,
       loading,
       CATEGORIES

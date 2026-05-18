@@ -1,13 +1,13 @@
 :root {
-  --admin-primary: #06b6d4; /* Cyan */
-  --admin-primary-glow: rgba(6, 182, 212, 0.5);
-  --admin-secondary: #3b82f6; /* Blue */
-  --admin-accent: #22d3ee;
-  --admin-bg: #020617; /* Deep Navy */
-  --admin-card-bg: rgba(15, 23, 42, 0.6);
-  --admin-border: rgba(255, 255, 255, 0.06);
-  --admin-text: #f1f5f9;
-  --admin-text-dim: #94a3b8;
+  --admin-primary: #ff7a00; /* Vibrant Brand Orange */
+  --admin-primary-glow: rgba(255, 122, 0, 0.4);
+  --admin-secondary: #f59e0b; /* Amber */
+  --admin-accent: #ff983d;
+  --admin-bg: #090d16; /* Deep Navy Charcoal */
+  --admin-card-bg: rgba(17, 24, 39, 0.85);
+  --admin-border: rgba(255, 122, 0, 0.15);
+  --admin-text: #f8fafc;
+  --admin-text-dim: #cbd5e1;
   --admin-success: #10b981;
   --admin-danger: #f43f5e;
   --admin-warning: #fbbf24;
@@ -271,7 +271,7 @@
 .search-input:focus {
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.15);
 }
 
 /* Table Design */
@@ -384,8 +384,8 @@
 }
 
 .billing-summary {
-  background: rgba(99, 102, 241, 0.03);
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  background: rgba(255, 122, 0, 0.03);
+  border: 1px solid rgba(255, 122, 0, 0.1);
   border-radius: 24px;
 }
 
@@ -413,7 +413,7 @@
 
 .image-upload-area:hover {
   border-color: var(--admin-primary);
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(255, 122, 0, 0.05);
 }
 
 /* Responsive Fixes */
@@ -475,8 +475,8 @@ select option {
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
+  background: rgba(255, 122, 0, 0.15);
+  color: #ff983d;
   letter-spacing: 0.3px;
 }
 
