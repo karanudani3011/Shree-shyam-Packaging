@@ -50,15 +50,15 @@ const Footer = () => {
             <div className="contact-info">
               <div className="contact-item">
                 <Phone size={18} color="var(--accent-warm-orange)" />
-                <span>+91 98765 43210</span>
+                <span>+91 8490831316</span>
               </div>
               <div className="contact-item">
                 <Mail size={18} color="var(--accent-warm-orange)" />
                 <span>info@shreeshyampackaging.com</span>
               </div>
               <div className="contact-item">
-                <MapPin size={18} color="var(--accent-warm-orange)" />
-                <span>GIDC Industrial Estate, Rajkot, Gujarat</span>
+                <MapPin size={35} color="var(--accent-warm-orange)" />
+                <span>Silver Nest Society, Sant Kabir Rd,behind Pujit Rupani Trust, Rajkot</span>
               </div>
             </div>
           </div>
