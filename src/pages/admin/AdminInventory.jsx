@@ -404,8 +404,13 @@ const AdminInventory = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>SKU Code (Auto-generated)</label>
-                <input type="text" value={newProduct.sku} readOnly style={{ opacity: 0.7, cursor: 'not-allowed' }} />
+                <label>SKU Code</label>
+                <input 
+                  type="text" 
+                  value={newProduct.sku} 
+                  onChange={e => setNewProduct({...newProduct, sku: e.target.value})} 
+                  placeholder="e.g. A"
+                />
               </div>
               
               <div className="form-group">

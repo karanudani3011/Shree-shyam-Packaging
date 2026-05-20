@@ -12,7 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
 
 const AdminAccounting = () => {
-  const { accounting, addAccountingEntry, transactions } = useERP();
+  const { accounting, addAccountingEntry, transactions, products } = useERP();
   const { currentUser } = useAuth();
   
   const allCategories = {
@@ -57,9 +57,23 @@ const AdminAccounting = () => {
   const totalSales = transactions.filter(t => t.type === 'sale').reduce((acc, t) => acc + t.amount, 0);
   const totalPurchases = transactions.filter(t => t.type === 'purchase').reduce((acc, t) => acc + t.amount, 0);
   const totalExpenses = accounting.expenses.reduce((acc, e) => acc + e.amount, 0);
-  const totalIncome = totalSales + accounting.income.reduce((acc, i) => acc + i.amount, 0);
   
-  const netProfit = totalIncome - totalPurchases - totalExpenses;
+  // Calculate Cost of Goods Sold (COGS)
+  const totalCOGS = transactions
+    .filter(t => t.type === 'sale')
+    .reduce((acc, t) => {
+      const itemsCost = (t.items || []).reduce((itemAcc, item) => {
+        const prod = products.find(p => p.id === Number(item.productId));
+        const cost = prod ? (prod.cost || 0) : 0;
+        return itemAcc + (cost * Number(item.quantity || 0));
+      }, 0);
+      return acc + itemsCost;
+    }, 0);
+
+  const otherIncome = accounting.income.reduce((acc, i) => acc + i.amount, 0);
+  const totalIncome = totalSales + otherIncome;
+  
+  const netProfit = totalSales - totalCOGS + otherIncome - totalExpenses;
 
   const entries = accounting[activeTab] || [];
 

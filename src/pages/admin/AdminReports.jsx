@@ -29,14 +29,15 @@ const AdminReports = () => {
   const salesByDate = transactions
     .filter(t => t.type === 'sale')
     .reduce((acc, t) => {
-      acc[t.date] = (acc[t.date] || 0) + t.amount;
+      const dateStr = t.date ? t.date : new Date(t.created_at || Date.now()).toISOString().split('T')[0];
+      acc[dateStr] = (acc[dateStr] || 0) + t.amount;
       return acc;
     }, {});
 
   const chartData = Object.keys(salesByDate).map(date => ({
     date,
     amount: salesByDate[date]
-  }));
+  })).sort((a, b) => a.date.localeCompare(b.date)); // Sort chronologically for chart
 
   const categoryData = products.reduce((acc, p) => {
     const existing = acc.find(item => item.name === p.category);
@@ -49,6 +50,29 @@ const AdminReports = () => {
   }, []);
 
   const COLORS = ['#ff7a00', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+  // Group transactions by date for Daily Profit Analysis
+  const dailyData = transactions.reduce((acc, t) => {
+    const dateStr = t.date ? t.date : new Date(t.created_at || Date.now()).toISOString().split('T')[0];
+    if (!acc[dateStr]) {
+      acc[dateStr] = { date: dateStr, sales: 0, purchases: 0, cogs: 0 };
+    }
+    
+    if (t.type === 'sale') {
+      acc[dateStr].sales += t.amount;
+      const txCogs = (t.items || []).reduce((sum, item) => {
+        const prod = products.find(p => p.id === Number(item.productId));
+        const cost = prod ? (prod.cost || 0) : 0;
+        return sum + (cost * Number(item.quantity || 0));
+      }, 0);
+      acc[dateStr].cogs += txCogs;
+    } else if (t.type === 'purchase') {
+      acc[dateStr].purchases += t.amount;
+    }
+    return acc;
+  }, {});
+
+  const dailyReport = Object.values(dailyData).sort((a, b) => b.date.localeCompare(a.date));
 
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(transactions);
@@ -141,20 +165,30 @@ const AdminReports = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>2024-05-10</td>
-                <td>₹12,450</td>
-                <td>₹8,200</td>
-                <td style={{ color: '#10b981', fontWeight: '700' }}>₹4,250</td>
-                <td>34.1%</td>
-              </tr>
-              <tr>
-                <td>2024-05-09</td>
-                <td>₹8,900</td>
-                <td>₹5,100</td>
-                <td style={{ color: '#10b981', fontWeight: '700' }}>₹3,800</td>
-                <td>42.7%</td>
-              </tr>
+              {dailyReport.length === 0 ? (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center', color: 'var(--admin-text-dim)', padding: '2rem' }}>
+                    No sales or purchases recorded yet.
+                  </td>
+                </tr>
+              ) : (
+                dailyReport.map(day => {
+                  const grossProfit = day.sales - day.cogs;
+                  const margin = day.sales > 0 ? ((grossProfit / day.sales) * 100).toFixed(1) : '0.0';
+                  
+                  return (
+                    <tr key={day.date}>
+                      <td>{day.date}</td>
+                      <td>₹{day.sales.toLocaleString()}</td>
+                      <td>₹{day.purchases.toLocaleString()}</td>
+                      <td style={{ color: grossProfit >= 0 ? '#10b981' : '#ef4444', fontWeight: '700' }}>
+                        ₹{grossProfit.toLocaleString()}
+                      </td>
+                      <td>{margin}%</td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

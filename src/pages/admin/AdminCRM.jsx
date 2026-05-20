@@ -9,13 +9,14 @@ import {
   Search,
   ChevronRight,
   Trash2,
+  Edit2,
   X
 } from 'lucide-react';
 import { useERP } from '../../context/ERPContext';
 import './AdminPages.css';
 
 const AdminCRM = () => {
-  const { customers, setCustomers, sellers, setSellers, transactions, updateTransactionStatus } = useERP();
+  const { customers, setCustomers, sellers, setSellers, transactions, updateTransactionStatus, deleteTransaction, updateTransaction } = useERP();
   const [activeTab, setActiveTab] = useState('customers');
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -23,6 +24,10 @@ const AdminCRM = () => {
   const [isLedgerModalOpen, setIsLedgerModalOpen] = useState(false);
   const [activeParty, setActiveParty] = useState(null);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
+  
+  // Transaction Edit states
+  const [editingTx, setEditingTx] = useState(null);
+  const [editTxData, setEditTxData] = useState({ customer: '', seller: '', date: '', amount: '', payment_mode: '', status: '' });
 
   const INTEREST_RATE = 1.5; // 1.5% per month
 
@@ -384,6 +389,7 @@ const AdminCRM = () => {
                         <th>Total Amount</th>
                         <th>Payment Mode</th>
                         <th>Status</th>
+                        <th style={{ textAlign: 'center' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -403,6 +409,43 @@ const AdminCRM = () => {
                               {tx.status}
                             </span>
                           </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+                              <button 
+                                onClick={() => {
+                                  setEditingTx(tx);
+                                  setEditTxData({
+                                    customer: tx.customer || '',
+                                    seller: tx.seller || '',
+                                    date: tx.date || new Date().toISOString().split('T')[0],
+                                    amount: tx.amount,
+                                    payment_mode: tx.payment_mode || tx.paymentMode || 'cash',
+                                    status: tx.status || 'paid'
+                                  });
+                                }}
+                                style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Edit Bill"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button 
+                                onClick={async () => {
+                                  if (window.confirm('Are you sure you want to permanently delete this bill? This cannot be undone.')) {
+                                    const { success } = await deleteTransaction(tx.id);
+                                    if (success) {
+                                      alert('Bill deleted successfully!');
+                                    } else {
+                                      alert('Failed to delete bill');
+                                    }
+                                  }
+                                }}
+                                style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', borderRadius: '6px', color: '#ef4444', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Delete Bill"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -413,6 +456,100 @@ const AdminCRM = () => {
           </div>
         );
       })()}
+
+      {editingTx && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }} onClick={() => setEditingTx(null)}>
+          <div className="modal-content glass-morphism animate-slideUp" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%' }}>
+            <div className="card-header">
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Edit2 size={22} color="var(--admin-primary)" />
+                Edit Bill: {editingTx.id.substring(0, 8)}
+              </h3>
+              <button className="icon-btn" onClick={() => setEditingTx(null)}><X size={20} /></button>
+            </div>
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const updates = {
+                customer: editingTx.type === 'sale' ? editTxData.customer : null,
+                seller: editingTx.type === 'purchase' ? editTxData.seller : null,
+                date: editTxData.date,
+                amount: Number(editTxData.amount),
+                payment_mode: editTxData.payment_mode,
+                status: editTxData.status
+              };
+              
+              const { success } = await updateTransaction(editingTx.id, updates);
+              if (success) {
+                alert('Bill updated successfully!');
+                setEditingTx(null);
+              } else {
+                alert('Failed to update bill');
+              }
+            }} className="form-grid" style={{ marginTop: '1.25rem' }}>
+              
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>{editingTx.type === 'sale' ? 'Customer Name' : 'Seller Name'}</label>
+                <input 
+                  type="text"
+                  required
+                  value={editingTx.type === 'sale' ? editTxData.customer : editTxData.seller}
+                  onChange={e => setEditTxData(prev => ({
+                    ...prev,
+                    [editingTx.type === 'sale' ? 'customer' : 'seller']: e.target.value
+                  }))}
+                />
+              </div>
+
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Date</label>
+                <input 
+                  type="date"
+                  required
+                  value={editTxData.date}
+                  onChange={e => setEditTxData(prev => ({ ...prev, date: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label>Total Amount (₹)</label>
+                <input 
+                  type="number"
+                  required
+                  value={editTxData.amount}
+                  onChange={e => setEditTxData(prev => ({ ...prev, amount: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Payment Mode</label>
+                <select 
+                  value={editTxData.payment_mode}
+                  onChange={e => setEditTxData(prev => ({ ...prev, payment_mode: e.target.value }))}
+                >
+                  <option value="cash">Cash</option>
+                  <option value="credit">Credit</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Status</label>
+                <select 
+                  value={editTxData.status}
+                  onChange={e => setEditTxData(prev => ({ ...prev, status: e.target.value }))}
+                >
+                  <option value="paid">Paid</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+
+              <button type="submit" className="glass-btn" style={{ gridColumn: 'span 2', marginTop: '1.5rem', background: 'var(--admin-primary)', justifyContent: 'center', padding: '1rem' }}>
+                Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

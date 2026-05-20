@@ -162,9 +162,25 @@ export const ERPProvider = ({ children }) => {
   };
 
   const updateTransactionStatus = async (id, status) => {
+    return updateTransaction(id, { status });
+  };
+
+  const deleteTransaction = async (id) => {
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', id);
+    
+    if (!error) {
+      setTransactions(prev => prev.filter(t => t.id !== id));
+    }
+    return { success: !error, error };
+  };
+
+  const updateTransaction = async (id, updates) => {
     const { data, error } = await supabase
       .from('transactions')
-      .update({ status })
+      .update(updates)
       .eq('id', id)
       .select();
     
@@ -189,7 +205,7 @@ export const ERPProvider = ({ children }) => {
       products, addProduct, updateProduct, deleteProduct, updateStock, toggleOutOfStock, clearInventory,
       customers, setCustomers,
       sellers, setSellers,
-      transactions, addTransaction, updateTransactionStatus,
+      transactions, addTransaction, updateTransactionStatus, deleteTransaction, updateTransaction,
       accounting, addAccountingEntry,
       loading,
       CATEGORIES
