@@ -2,21 +2,15 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PlayCircle, ShoppingCart, AlertTriangle } from 'lucide-react';
 import { openWhatsApp } from '../utils/whatsapp';
-import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
   const { addToCart } = useCart();
 
   const handleBuyNow = (e) => {
     e.preventDefault();
-    if (!isLoggedIn) {
-      navigate('/login');
-      return;
-    }
     openWhatsApp(product.name);
   };
 

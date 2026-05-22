@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Box, LogIn, LogOut, Menu, X } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Search, ShoppingCart, Box, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import './Header.css';
 
 const Header = () => {
-  const { isLoggedIn, logout } = useAuth();
   const { cartCount, setIsCartOpen } = useCart();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,20 +39,7 @@ const Header = () => {
             <Link to="/about" className="nav-link">About Us</Link>
             <Link to="/products?category=boxes" className="nav-link">Boxes</Link>
             
-            {isLoggedIn ? (
-              <button className="nav-link" onClick={logout} style={{background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)'}}>
-                <LogOut size={18} /> Logout
-              </button>
-            ) : (
-              <button className="nav-link" onClick={() => navigate('/login')} style={{background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)'}}>
-                <LogIn size={18} /> Login
-              </button>
-            )}
-
-            <button className="cart-btn" onClick={() => { 
-              if(!isLoggedIn) navigate('/login'); 
-              else setIsCartOpen(true);
-            }}>
+            <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
               <ShoppingCart size={20} />
               <span>Cart ({cartCount})</span>
             </button>
@@ -62,10 +47,7 @@ const Header = () => {
 
           {/* Mobile Toggle */}
           <div className="mobile-actions">
-            <button className="cart-btn mobile-cart-btn" onClick={() => { 
-                if(!isLoggedIn) navigate('/login'); 
-                else setIsCartOpen(true);
-              }}>
+            <button className="cart-btn mobile-cart-btn" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart size={20} />
                 <span className="cart-badge">{cartCount}</span>
             </button>
@@ -89,16 +71,6 @@ const Header = () => {
           <Link to="/products" className="mobile-nav-link" onClick={toggleMobileMenu}>Products</Link>
           <Link to="/about" className="mobile-nav-link" onClick={toggleMobileMenu}>About Us</Link>
           <Link to="/products?category=boxes" className="mobile-nav-link" onClick={toggleMobileMenu}>Boxes</Link>
-          
-          {isLoggedIn ? (
-            <button className="mobile-nav-link btn-logout" onClick={() => { logout(); toggleMobileMenu(); }}>
-              <LogOut size={18} /> Logout
-            </button>
-          ) : (
-            <button className="mobile-nav-link btn-login" onClick={() => { navigate('/login'); toggleMobileMenu(); }}>
-              <LogIn size={18} /> Login
-            </button>
-          )}
         </div>
       </header>
     </>

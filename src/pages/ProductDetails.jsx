@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MessageCircle, ShoppingCart, ArrowLeft, PlayCircle, AlertTriangle } from 'lucide-react';
 import { openWhatsApp } from '../utils/whatsapp';
-import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useERP } from '../context/ERPContext';
 import './ProductDetails.css';
@@ -10,7 +9,6 @@ import './ProductDetails.css';
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
   const { addToCart } = useCart();
   const { products } = useERP();
   const [product, setProduct] = useState(null);
@@ -35,10 +33,6 @@ const ProductDetails = () => {
     : [product.image || '/product.png', product.image || '/product.png', product.image || '/product.png', product.image || '/product.png'];
 
   const handleBuyNow = () => {
-    if (!isLoggedIn) {
-      navigate('/login');
-      return;
-    }
     setShowOrderModal(true);
   };
 

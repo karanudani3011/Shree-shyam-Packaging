@@ -39,7 +39,7 @@ const App = () => {
       {/* 1. Login Routes */}
       <Route 
         path="/login" 
-        element={!isLoggedIn ? <Login /> : <Navigate to="/" replace />} 
+        element={<Navigate to="/" replace />} 
       />
       <Route 
         path="/admin/login" 

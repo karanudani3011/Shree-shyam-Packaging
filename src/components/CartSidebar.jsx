@@ -2,23 +2,16 @@ import React from 'react';
 import { X, Trash2, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { openWhatsAppCart } from '../utils/whatsapp';
 import './CartSidebar.css';
 
 const CartSidebar = () => {
   const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
-  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   if (!isCartOpen) return null;
 
   const handleCheckout = () => {
-    if (!isLoggedIn) {
-      setIsCartOpen(false);
-      navigate('/login');
-      return;
-    }
     openWhatsAppCart(cartItems);
   };
 

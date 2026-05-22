@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
@@ -21,6 +22,19 @@ import { useERP, CATEGORIES } from '../../context/ERPContext';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
+
+const formatDateTime = (isoString) => {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const pad = (num) => String(num).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const mm = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const min = pad(date.getMinutes());
+  const ss = pad(date.getSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+};
 
 import * as XLSX from 'xlsx';
 
@@ -473,33 +487,88 @@ const AdminInventory = () => {
       )}
 
       {showCodes && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center' }}>
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setShowCodes(null); }}>
+          <div className="modal-content" style={{ maxWidth: '480px', textAlign: 'center' }}>
             <div className="card-header">
-              <h3>Product Labels</h3>
+              <h3>Sticker Print Preview</h3>
               <button className="icon-btn" onClick={() => setShowCodes(null)}><X size={20} /></button>
             </div>
-            <div className="codes-display" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem' }}>
-              <div className="qr-section">
-                <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>{showCodes.name}</p>
-                <p style={{ marginBottom: '1rem', color: 'var(--admin-text-dim)', fontSize: '0.8rem' }}>{showCodes.dimensions}</p>
-                <div style={{ background: 'white', padding: '1rem', borderRadius: '12px', display: 'inline-block' }}>
-                  <QRCode value={getProductPublicUrl(showCodes)} size={150} />
+            
+            <div className="sticker-preview-container" style={{ margin: '2rem 0', display: 'flex', justifyContent: 'center' }}>
+              <div className="sticker-card-preview">
+                <div className="sticker-main-row">
+                  <div className="sticker-logo-col">
+                    <div className="logo-circle-wrapper">
+                      <div className="logo-circle">
+                        <span className="logo-text-top">Shree</span>
+                        <span className="logo-text-center">SSP</span>
+                        <span className="logo-text-bottom">Shyam</span>
+                      </div>
+                      <span className="logo-tm">TM</span>
+                    </div>
+                  </div>
+                  
+                  <div className="sticker-qr-col">
+                    <QRCode value={getProductPublicUrl(showCodes)} size={48} />
+                  </div>
+                  
+                  <div className="sticker-details-col">
+                    <div className="sticker-prod-name">{showCodes.name}</div>
+                    <div className="sticker-qty">Qty:- {showCodes.stock}</div>
+                    <div className="sticker-sku">{showCodes.sku}</div>
+                  </div>
                 </div>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.7rem' }}>Scan to view details</p>
-              </div>
-              <div className="barcode-section">
-                <p style={{ marginBottom: '1rem', color: 'var(--admin-text-dim)' }}>Billing Barcode</p>
-                <div style={{ background: 'white', padding: '1rem', borderRadius: '12px', display: 'inline-block' }}>
-                  <Barcode value={showCodes.sku} height={50} width={1.5} fontSize={14} />
+                
+                <div className="sticker-bottom-row">
+                  <span className="sticker-id">{showCodes.id}</span>
+                  <span className="sticker-date">{formatDateTime(showCodes.created_at)}</span>
                 </div>
               </div>
-              <button className="glass-btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => window.print()}>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button className="glass-btn" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setShowCodes(null)}>
+                Cancel
+              </button>
+              <button className="glass-btn" style={{ flex: 2, justifyContent: 'center', background: 'var(--admin-primary)' }} onClick={() => window.print()}>
                 Print Label
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {showCodes && createPortal(
+        <div className="printable-sticker-label">
+          <div className="sticker-main-row">
+            <div className="sticker-logo-col">
+              <div className="logo-circle-wrapper">
+                <div className="logo-circle">
+                  <span className="logo-text-top">Shree</span>
+                  <span className="logo-text-center">SSP</span>
+                  <span className="logo-text-bottom">Shyam</span>
+                </div>
+                <span className="logo-tm">TM</span>
+              </div>
+            </div>
+            
+            <div className="sticker-qr-col">
+              <QRCode value={getProductPublicUrl(showCodes)} size={48} />
+            </div>
+            
+            <div className="sticker-details-col">
+              <div className="sticker-prod-name">{showCodes.name}</div>
+              <div className="sticker-qty">Qty:- {showCodes.stock}</div>
+              <div className="sticker-sku">{showCodes.sku}</div>
+            </div>
+          </div>
+          
+          <div className="sticker-bottom-row">
+            <span className="sticker-id">{showCodes.id}</span>
+            <span className="sticker-date">{formatDateTime(showCodes.created_at)}</span>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

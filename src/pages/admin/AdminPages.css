@@ -860,3 +860,379 @@ select option {
   .stat-value { font-size: 1.5rem; }
 }
 
+/* ==========================================================================
+   STICKER PRINT PATTERN & PREVIEW STYLES
+   ========================================================================== */
+
+/* Hidden by default on screen */
+.printable-sticker-label {
+  display: none;
+}
+
+/* Shared Sticker Design (Used in screen preview and print portal) */
+.sticker-card-preview, .printable-sticker-label {
+  background: white !important;
+  color: black !important;
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 1.5mm 3.5mm;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
+}
+
+/* Screen Preview Container sizing */
+.sticker-card-preview {
+  width: 75mm;
+  height: 25mm;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  transform: scale(1.4); /* upscale slightly for preview visibility */
+  transform-origin: center;
+}
+
+.sticker-main-row {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  width: 100%;
+  height: 17mm;
+}
+
+.sticker-logo-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 14mm;
+  height: 14mm;
+}
+
+.logo-circle-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.logo-circle {
+  width: 12mm;
+  height: 12mm;
+  border-radius: 50%;
+  background: #582f87; /* Purple circle matching SSP logo */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.logo-text-top {
+  font-size: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 1px;
+  letter-spacing: 0.2px;
+  line-height: 1;
+}
+
+.logo-text-center {
+  font-size: 11px;
+  font-weight: 900;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1;
+  margin: -1px 0;
+  letter-spacing: 0.5px;
+}
+
+.logo-text-bottom {
+  font-size: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 1.5px;
+  letter-spacing: 0.2px;
+  line-height: 1;
+}
+
+.logo-tm {
+  position: absolute;
+  top: -1px;
+  right: -2.5mm;
+  font-size: 4px;
+  font-weight: 900;
+  border: 0.5px solid #000;
+  border-radius: 50%;
+  width: 2.2mm;
+  height: 2.2mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  color: black;
+}
+
+.sticker-qr-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14mm;
+  height: 14mm;
+  background: white !important;
+}
+
+.sticker-qr-col svg {
+  display: block;
+}
+
+.sticker-details-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 2px;
+  overflow: hidden;
+}
+
+.sticker-prod-name {
+  font-size: 7.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+  color: black;
+}
+
+.sticker-qty {
+  font-size: 8px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: black;
+}
+
+.sticker-sku {
+  font-size: 7.5px;
+  font-weight: bold;
+  color: black;
+}
+
+.sticker-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 4mm;
+  border-top: 0.5px solid #ccc;
+  font-size: 5.5px;
+  color: black;
+  margin-top: 0.5mm;
+}
+
+.sticker-id {
+  font-weight: bold;
+}
+
+.sticker-date {
+  font-size: 6px;
+}
+
+/* Print Overrides — Sticker fills exactly a 75mm x 25mm label */
+@media print {
+  @page {
+    size: 75mm 25mm;
+    margin: 0;
+  }
+
+  html, body {
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 75mm !important;
+    height: 25mm !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide the entire React app */
+  #root {
+    display: none !important;
+  }
+
+  /* ── Sticker wrapper: exact size ── */
+  .printable-sticker-label {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 75mm !important;
+    height: 25mm !important;
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 1.5mm 3.5mm !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+
+  /* ── Main content row ── */
+  .printable-sticker-label .sticker-main-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2.5mm !important;
+    width: 68mm !important;
+    height: 17mm !important;
+    overflow: hidden !important;
+  }
+
+  /* ── Logo column ── */
+  .printable-sticker-label .sticker-logo-col {
+    width: 14mm !important;
+    height: 14mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .printable-sticker-label .logo-circle-wrapper {
+    position: relative !important;
+    width: 12mm !important;
+    height: 12mm !important;
+  }
+
+  .printable-sticker-label .logo-circle {
+    width: 12mm !important;
+    height: 12mm !important;
+    border-radius: 50% !important;
+    background: #582f87 !important;
+    color: white !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .printable-sticker-label .logo-text-top {
+    font-size: 5px !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    margin-top: 1px !important;
+    letter-spacing: 0.2px !important;
+    line-height: 1 !important;
+  }
+
+  .printable-sticker-label .logo-text-center {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    font-family: 'Times New Roman', Times, serif !important;
+    line-height: 1 !important;
+    margin: -1px 0 !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .printable-sticker-label .logo-text-bottom {
+    font-size: 5px !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    margin-bottom: 1.5px !important;
+    letter-spacing: 0.2px !important;
+    line-height: 1 !important;
+  }
+
+  .printable-sticker-label .logo-tm {
+    position: absolute !important;
+    top: -1px !important;
+    right: -2.5mm !important;
+    font-size: 4px !important;
+    font-weight: 900 !important;
+    border: 0.5px solid #000 !important;
+    border-radius: 50% !important;
+    width: 2.2mm !important;
+    height: 2.2mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* ── QR column ── */
+  .printable-sticker-label .sticker-qr-col {
+    width: 14mm !important;
+    height: 14mm !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    background: white !important;
+  }
+
+  /* Force QR SVG */
+  .printable-sticker-label .sticker-qr-col svg {
+    width: 14mm !important;
+    height: 14mm !important;
+    display: block !important;
+  }
+
+  /* ── Details column ── */
+  .printable-sticker-label .sticker-details-col {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    padding-left: 1mm !important;
+  }
+
+  .printable-sticker-label .sticker-prod-name {
+    font-size: 7.5px !important;
+    font-weight: 800 !important;
+    color: black !important;
+    margin-bottom: 1px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .printable-sticker-label .sticker-qty {
+    font-size: 8px !important;
+    font-weight: bold !important;
+    color: black !important;
+    margin-bottom: 1px !important;
+  }
+
+  .printable-sticker-label .sticker-sku {
+    font-size: 7.5px !important;
+    font-weight: bold !important;
+    color: black !important;
+  }
+
+  /* ── Bottom row ── */
+  .printable-sticker-label .sticker-bottom-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 68mm !important;
+    height: 4mm !important;
+    border-top: 0.5px solid #ccc !important;
+    padding-top: 0.5mm !important;
+    font-size: 5.5px !important;
+    color: black !important;
+  }
+
+  .printable-sticker-label .sticker-id {
+    font-weight: bold !important;
+    font-size: 5.5px !important;
+  }
+
+  .printable-sticker-label .sticker-date {
+    font-size: 5.5px !important;
+  }
+}
+
+
