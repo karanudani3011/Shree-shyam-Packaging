@@ -68,6 +68,9 @@ const AdminInventory = () => {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
   const excelInputRef = useRef(null);
+  // Inline SKU editing
+  const [editingSkuId, setEditingSkuId] = useState(null);
+  const [editingSkuValue, setEditingSkuValue] = useState('');
 
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -323,7 +326,43 @@ const AdminInventory = () => {
                     />
                   </div>
                 </td>
-                <td><code style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>{product.sku}</code></td>
+                <td>
+                  {editingSkuId === product.id ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <input
+                        autoFocus
+                        type="text"
+                        value={editingSkuValue}
+                        onChange={e => setEditingSkuValue(e.target.value)}
+                        onBlur={() => {
+                          if (editingSkuValue.trim()) {
+                            updateProduct(product.id, { ...product, sku: editingSkuValue.trim() });
+                          }
+                          setEditingSkuId(null);
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            if (editingSkuValue.trim()) {
+                              updateProduct(product.id, { ...product, sku: editingSkuValue.trim() });
+                            }
+                            setEditingSkuId(null);
+                          } else if (e.key === 'Escape') {
+                            setEditingSkuId(null);
+                          }
+                        }}
+                        style={{ width: '80px', padding: '3px 7px', borderRadius: '6px', border: '1px solid var(--admin-primary)', background: 'rgba(99,102,241,0.12)', color: 'white', fontSize: '0.85rem', outline: 'none' }}
+                      />
+                    </div>
+                  ) : (
+                    <code
+                      title="Click to edit SKU"
+                      style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer' }}
+                      onClick={() => { setEditingSkuId(product.id); setEditingSkuValue(product.sku); }}
+                    >
+                      {product.sku} ✏️
+                    </code>
+                  )}
+                </td>
                 <td><strong>{product.name}</strong></td>
                 <td>
                   <span className="category-badge">{product.category}</span>
@@ -507,21 +546,15 @@ const AdminInventory = () => {
                       <span className="logo-tm">TM</span>
                     </div>
                   </div>
-                  
+
                   <div className="sticker-qr-col">
                     <QRCode value={getProductPublicUrl(showCodes)} size={48} />
                   </div>
                   
                   <div className="sticker-details-col">
                     <div className="sticker-prod-name">{showCodes.name}</div>
-                    <div className="sticker-qty">Qty:- {showCodes.stock}</div>
-                    <div className="sticker-sku">{showCodes.sku}</div>
+                    <div className="sticker-sku-big">{showCodes.sku}</div>
                   </div>
-                </div>
-                
-                <div className="sticker-bottom-row">
-                  <span className="sticker-id">{showCodes.id}</span>
-                  <span className="sticker-date">{formatDateTime(showCodes.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -551,21 +584,15 @@ const AdminInventory = () => {
                 <span className="logo-tm">TM</span>
               </div>
             </div>
-            
+
             <div className="sticker-qr-col">
               <QRCode value={getProductPublicUrl(showCodes)} size={48} />
             </div>
             
             <div className="sticker-details-col">
               <div className="sticker-prod-name">{showCodes.name}</div>
-              <div className="sticker-qty">Qty:- {showCodes.stock}</div>
-              <div className="sticker-sku">{showCodes.sku}</div>
+              <div className="sticker-sku-big">{showCodes.sku}</div>
             </div>
-          </div>
-          
-          <div className="sticker-bottom-row">
-            <span className="sticker-id">{showCodes.id}</span>
-            <span className="sticker-date">{formatDateTime(showCodes.created_at)}</span>
           </div>
         </div>,
         document.body

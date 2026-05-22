@@ -120,9 +120,11 @@ export const ERPProvider = ({ children }) => {
 
   const addTransaction = async (tx) => {
     // Robust mapping for DB schema
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const dbTx = {
       id: tx.id || `tx-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       type: tx.type,
+      date: tx.date || today,
       customer: tx.type === 'sale' ? (tx.customer || 'Walk-in Customer') : null,
       seller: tx.type === 'purchase' ? (tx.customer || 'Main Supplier') : null,
       amount: Number(tx.amount),
