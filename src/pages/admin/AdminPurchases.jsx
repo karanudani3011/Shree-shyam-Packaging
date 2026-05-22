@@ -7,12 +7,10 @@ import {
   User,
   Package,
   Calendar,
-  ShoppingCart,
   ShoppingBag,
   Edit2,
   X,
-  Search,
-  Eye
+  Search
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -20,18 +18,14 @@ import { useERP } from '../../context/ERPContext';
 import { useAuth } from '../../context/AuthContext';
 import './AdminPages.css';
 
-const AdminBilling = () => {
-  const { products, customers, addTransaction, updateProduct, transactions, deleteTransaction, updateTransaction } = useERP();
+const AdminPurchases = () => {
+  const { products, addTransaction, transactions, deleteTransaction, updateTransaction } = useERP();
   const { currentUser } = useAuth();
   
-  const canSale = currentUser?.role === 'admin' || currentUser?.permissions?.includes('sale');
-  const canPurchase = currentUser?.role === 'admin' || currentUser?.permissions?.includes('purchase');
-
-  // Tab: 'create' | 'sales' | 'purchases'
-  const [activeTab, setActiveTab] = useState(canSale ? 'create' : 'purchases');
-  const [invoiceType, setInvoiceType] = useState(canSale ? 'sale' : 'purchase');
+  // Tab: 'create' | 'history'
+  const [activeTab, setActiveTab] = useState('create');
   const [paymentMode, setPaymentMode] = useState('cash');
-  const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [selectedSeller, setSelectedSeller] = useState('');
   const [dueDays, setDueDays] = useState(30);
   const [items, setItems] = useState([{ productId: '', quantity: 1, price: 0 }]);
   const [gstRate, setGstRate] = useState(18);
@@ -46,9 +40,7 @@ const AdminBilling = () => {
 
   const handleProductChange = (index, productId) => {
     const product = products.find(p => p.id === Number(productId));
-    const rememberedPrices = JSON.parse(localStorage.getItem('last_billed_prices') || '{}');
-    const rememberedPrice = rememberedPrices[productId];
-    const defaultPrice = rememberedPrice !== undefined ? rememberedPrice : (product && product.price !== null ? product.price : 0);
+    const defaultPrice = product && product.cost !== null ? product.cost : 0;
     const newItems = [...items];
     newItems[index] = { productId, quantity: 1, price: defaultPrice, name: product ? product.name : '' };
     setItems(newItems);
@@ -60,7 +52,6 @@ const AdminBilling = () => {
 
   const buildPDF = (txData) => {
     const doc = new jsPDF();
-    const isSale = txData.type === 'sale';
     const subtotal = (txData.items || []).reduce((a, i) => a + (i.price * i.quantity), 0);
     const gst = (subtotal * (txData.gstRate || 18)) / 100;
     const total = txData.amount || (subtotal + gst);
@@ -75,16 +66,16 @@ const AdminBilling = () => {
 
     doc.setFontSize(16);
     doc.setTextColor(0);
-    doc.text(`${isSale ? 'SALES' : 'PURCHASE'} INVOICE`, 140, 22);
+    doc.text('PURCHASE INVOICE', 140, 22);
     doc.setFontSize(10);
-    doc.text(`Invoice No: ${isSale ? 'INV' : 'PUR'}-${String(txData.id || Date.now()).slice(-6)}`, 140, 30);
+    doc.text(`Invoice No: PUR-${String(txData.id || Date.now()).slice(-6)}`, 140, 30);
     doc.text(`Date: ${txData.date || new Date().toLocaleDateString()}`, 140, 35);
     doc.text(`Mode: ${(txData.paymentMode || 'cash').toUpperCase()}`, 140, 40);
 
     doc.setFontSize(12);
-    doc.text(isSale ? 'Bill To:' : 'Vendor:', 14, 50);
+    doc.text('Vendor:', 14, 50);
     doc.setFontSize(10);
-    doc.text(txData.customer || 'Walk-in Customer', 14, 57);
+    doc.text(txData.customer || 'Walk-in Vendor', 14, 57);
 
     const tableData = (txData.items || []).map((item, index) => [
       index + 1,
@@ -111,16 +102,13 @@ const AdminBilling = () => {
   };
 
   const generatePDF = () => {
-    if (invoiceType === 'sale' && !canSale) return alert('No permission to create sales');
-    if (invoiceType === 'purchase' && !canPurchase) return alert('No permission to create purchases');
-    
     const subtotal = calculateSubtotal();
     const gst = calculateGST();
     const total = calculateTotal();
 
     const txData = {
-      type: invoiceType,
-      customer: selectedCustomer,
+      type: 'purchase',
+      customer: selectedSeller || 'Main Supplier',
       amount: total,
       status: paymentMode === 'cash' ? 'paid' : 'pending',
       paymentMode,
@@ -135,19 +123,9 @@ const AdminBilling = () => {
     
     addTransaction({ ...txData, items });
 
-    if (invoiceType === 'sale') {
-      const rememberedPrices = JSON.parse(localStorage.getItem('last_billed_prices') || '{}');
-      items.forEach(item => {
-        if (item.productId && item.price !== undefined) {
-          rememberedPrices[item.productId] = item.price;
-        }
-      });
-      localStorage.setItem('last_billed_prices', JSON.stringify(rememberedPrices));
-    }
-
-    alert('Invoice saved and transaction recorded!');
+    alert('Invoice saved and purchase transaction recorded!');
     setItems([{ productId: '', quantity: 1, price: 0 }]);
-    setSelectedCustomer('');
+    setSelectedSeller('');
   };
 
   const handleReprintPDF = (tx) => {
@@ -156,7 +134,7 @@ const AdminBilling = () => {
   };
 
   const handleDeleteTx = async (id) => {
-    if (!window.confirm('Delete this invoice permanently?')) return;
+    if (!window.confirm('Delete this purchase invoice permanently?')) return;
     await deleteTransaction(id);
   };
 
@@ -176,132 +154,31 @@ const AdminBilling = () => {
     setEditingTx(null);
   };
 
-  const filteredSales = transactions
-    .filter(t => t.type === 'sale')
-    .filter(t => !historySearch || (t.customer || '').toLowerCase().includes(historySearch.toLowerCase()))
-    .sort((a, b) => b.id - a.id);
-
   const filteredPurchases = transactions
     .filter(t => t.type === 'purchase')
     .filter(t => !historySearch || (t.customer || '').toLowerCase().includes(historySearch.toLowerCase()))
     .sort((a, b) => b.id - a.id);
 
-  // ─── Tab bar ───────────────────────────────────────────────────────────────
-  const tabs = [
-    { key: 'create', label: '+ Create Invoice', show: canSale || canPurchase },
-    { key: 'sales', label: 'Sales Invoices', show: canSale },
-    { key: 'purchases', label: 'Purchase Invoices', show: canPurchase },
-  ].filter(t => t.show);
-
-  // ─── Shared history table ───────────────────────────────────────────────────
-  const HistoryTable = ({ rows, label }) => (
-    <div>
-      <div className="billing-history-search">
-        <Search size={16} />
-        <input
-          type="text"
-          placeholder={`Search ${label} by party name…`}
-          value={historySearch}
-          onChange={e => setHistorySearch(e.target.value)}
-        />
-      </div>
-      <div className="admin-table-container" style={{ marginTop: '1rem' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Date</th>
-              <th>Party</th>
-              <th>Amount</th>
-              <th>Mode</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--admin-text-dim)' }}>
-                  No {label.toLowerCase()} found.
-                </td>
-              </tr>
-            ) : rows.map((tx, i) => (
-              <tr key={tx.id}>
-                <td style={{ color: 'var(--admin-text-dim)', fontSize: '0.8rem' }}>
-                  {label === 'Sales' ? 'INV' : 'PUR'}-{String(tx.id || '').slice(-6)}
-                </td>
-                <td>{tx.date || '—'}</td>
-                <td style={{ fontWeight: 600 }}>{tx.customer || 'Walk-in'}</td>
-                <td style={{ color: 'var(--admin-success)', fontWeight: 700 }}>
-                  ₹{Number(tx.amount || 0).toLocaleString()}
-                </td>
-                <td>
-                  <span className="category-badge" style={{ background: tx.paymentMode === 'cash' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: tx.paymentMode === 'cash' ? '#34d399' : '#fbbf24' }}>
-                    {tx.paymentMode || 'cash'}
-                  </span>
-                </td>
-                <td>
-                  <span className={`status-badge ${tx.status === 'paid' ? 'paid' : 'pending'}`}>
-                    {tx.status || 'paid'}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-btns">
-                    <button className="icon-btn" title="Reprint PDF" style={{ color: 'var(--admin-primary)' }} onClick={() => handleReprintPDF(tx)}>
-                      <Download size={15} />
-                    </button>
-                    <button className="icon-btn" title="Edit" style={{ color: '#a78bfa' }} onClick={() => openEditTx(tx)}>
-                      <Edit2 size={15} />
-                    </button>
-                    <button className="icon-btn" title="Delete" style={{ color: 'var(--admin-danger)' }} onClick={() => handleDeleteTx(tx.id)}>
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
   return (
     <div className="admin-billing">
-      {/* ─── Tab Navigation ─── */}
+      {/* Tab Navigation */}
       <div className="billing-tabs">
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            className={`billing-tab-btn ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => { setActiveTab(tab.key); setHistorySearch(''); }}
-          >
-            {tab.key === 'create' && <Plus size={16} />}
-            {tab.key === 'sales' && <ShoppingCart size={16} />}
-            {tab.key === 'purchases' && <ShoppingBag size={16} />}
-            {tab.label}
-          </button>
-        ))}
+        <button
+          className={`billing-tab-btn ${activeTab === 'create' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('create'); }}
+        >
+          <Plus size={16} /> Create Purchase Invoice
+        </button>
+        <button
+          className={`billing-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('history'); setHistorySearch(''); }}
+        >
+          <ShoppingBag size={16} /> Purchase Invoice History
+        </button>
       </div>
 
-      {/* ─── Sales History Tab ─── */}
-      {activeTab === 'sales' && (
-        <div className="admin-card glass-morphism animate-fadeIn">
-          <div className="card-header">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <ShoppingCart size={22} color="var(--admin-primary)" />
-              Sales Invoices
-            </h3>
-            <span className="category-badge" style={{ fontSize: '0.9rem', padding: '0.4rem 0.9rem' }}>
-              {filteredSales.length} bills
-            </span>
-          </div>
-          <HistoryTable rows={filteredSales} label="Sales" />
-        </div>
-      )}
-
-      {/* ─── Purchases History Tab ─── */}
-      {activeTab === 'purchases' && (
+      {/* History Tab */}
+      {activeTab === 'history' && (
         <div className="admin-card glass-morphism animate-fadeIn">
           <div className="card-header">
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -312,49 +189,95 @@ const AdminBilling = () => {
               {filteredPurchases.length} bills
             </span>
           </div>
-          <HistoryTable rows={filteredPurchases} label="Purchases" />
+
+          <div className="billing-history-search">
+            <Search size={16} />
+            <input
+              type="text"
+              placeholder="Search purchases by seller name…"
+              value={historySearch}
+              onChange={e => setHistorySearch(e.target.value)}
+            />
+          </div>
+
+          <div className="admin-table-container" style={{ marginTop: '1rem' }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Seller / Vendor</th>
+                  <th>Amount</th>
+                  <th>Mode</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPurchases.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--admin-text-dim)' }}>
+                      No purchase invoices found.
+                    </td>
+                  </tr>
+                ) : filteredPurchases.map((tx) => (
+                  <tr key={tx.id}>
+                    <td style={{ color: 'var(--admin-text-dim)', fontSize: '0.8rem' }}>
+                      PUR-{String(tx.id || '').slice(-6)}
+                    </td>
+                    <td>{tx.date || '—'}</td>
+                    <td style={{ fontWeight: 600 }}>{tx.customer || 'Walk-in'}</td>
+                    <td style={{ color: 'var(--admin-success)', fontWeight: 700 }}>
+                      ₹{Number(tx.amount || 0).toLocaleString()}
+                    </td>
+                    <td>
+                      <span className="category-badge" style={{ background: tx.paymentMode === 'cash' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: tx.paymentMode === 'cash' ? '#34d399' : '#fbbf24' }}>
+                        {tx.paymentMode || 'cash'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${tx.status === 'paid' ? 'paid' : 'pending'}`}>
+                        {tx.status || 'paid'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-btns">
+                        <button className="icon-btn" title="Reprint PDF" style={{ color: 'var(--admin-primary)' }} onClick={() => handleReprintPDF(tx)}>
+                          <Download size={15} />
+                        </button>
+                        <button className="icon-btn" title="Edit" style={{ color: '#a78bfa' }} onClick={() => openEditTx(tx)}>
+                          <Edit2 size={15} />
+                        </button>
+                        <button className="icon-btn" title="Delete" style={{ color: 'var(--admin-danger)' }} onClick={() => handleDeleteTx(tx.id)}>
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* ─── Create Invoice Tab ─── */}
+      {/* Create Tab */}
       {activeTab === 'create' && (
         <div className="admin-card glass-morphism animate-fadeIn">
           <div className="card-header">
             <div className="title-area">
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>
-                Create New {invoiceType === 'sale' ? 'Sales' : 'Purchase'} Invoice
-              </h3>
-              <p style={{ color: 'var(--admin-text-dim)', fontSize: '0.9rem' }}>Generate professional tax invoices instantly</p>
-            </div>
-            <div className="type-switch">
-              {canSale && (
-                <button
-                  className={`glass-btn ${invoiceType === 'sale' ? 'active' : ''}`}
-                  onClick={() => setInvoiceType('sale')}
-                >
-                  Sales
-                </button>
-              )}
-              {canPurchase && (
-                <button
-                  className={`glass-btn ${invoiceType === 'purchase' ? 'active' : ''}`}
-                  onClick={() => setInvoiceType('purchase')}
-                >
-                  Purchase
-                </button>
-              )}
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Create New Purchase Invoice</h3>
+              <p style={{ color: 'var(--admin-text-dim)', fontSize: '0.9rem' }}>Record supplier purchases and add stock</p>
             </div>
           </div>
 
           <div className="billing-form-top form-grid" style={{ marginBottom: '3rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid var(--admin-border)' }}>
             <div className="form-group">
-              <label><User size={16} color="var(--admin-primary)" /> {invoiceType === 'sale' ? 'Customer' : 'Seller'}</label>
-              <select value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
-                <option value="">Select {invoiceType === 'sale' ? 'Customer' : 'Seller'}</option>
-                {invoiceType === 'sale'
-                  ? customers.map(c => <option key={c.id} value={c.name}>{c.name}</option>)
-                  : <option value="Main Supplier">Main Supplier</option>
-                }
+              <label><User size={16} color="var(--admin-primary)" /> Seller</label>
+              <select value={selectedSeller} onChange={e => setSelectedSeller(e.target.value)}>
+                <option value="Main Supplier">Main Supplier</option>
+                <option value="Secondary Supplier">Secondary Supplier</option>
+                <option value="Other Supplier">Other Supplier</option>
               </select>
             </div>
             <div className="form-group">
@@ -365,10 +288,12 @@ const AdminBilling = () => {
               <label><Package size={16} color="var(--admin-primary)" /> Payment Mode</label>
               <div className="mode-toggle">
                 <button
+                  type="button"
                   onClick={() => setPaymentMode('cash')}
                   className={paymentMode === 'cash' ? 'mode-active' : 'mode-inactive'}
                 >Cash</button>
                 <button
+                  type="button"
                   onClick={() => setPaymentMode('credit')}
                   className={paymentMode === 'credit' ? 'mode-active mode-credit' : 'mode-inactive'}
                 >Credit</button>
@@ -462,19 +387,19 @@ const AdminBilling = () => {
         </div>
       )}
 
-      {/* ─── Edit Transaction Modal ─── */}
+      {/* Edit Transaction Modal */}
       {editingTx && (
         <div className="modal-overlay" onClick={() => setEditingTx(null)}>
           <div className="modal-content glass-morphism animate-slideUp" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
             <div className="card-header">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Edit2 size={20} color="var(--admin-primary)" /> Edit Invoice
+                <Edit2 size={20} color="var(--admin-primary)" /> Edit Purchase Invoice
               </h3>
               <button className="icon-btn" onClick={() => setEditingTx(null)}><X size={20} /></button>
             </div>
             <div className="form-grid" style={{ marginTop: '1rem' }}>
               <div className="form-group">
-                <label>Party Name</label>
+                <label>Seller Name</label>
                 <input type="text" value={editForm.customer} onChange={e => setEditForm({ ...editForm, customer: e.target.value })} />
               </div>
               <div className="form-group">
@@ -514,4 +439,4 @@ const AdminBilling = () => {
   );
 };
 
-export default AdminBilling;
+export default AdminPurchases;

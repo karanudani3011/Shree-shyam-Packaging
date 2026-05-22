@@ -20,7 +20,8 @@ import CartSidebar from './components/CartSidebar';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminInventory from './pages/admin/AdminInventory';
-import AdminBilling from './pages/admin/AdminBilling';
+import AdminSales from './pages/admin/AdminSales';
+import AdminPurchases from './pages/admin/AdminPurchases';
 import AdminCRM from './pages/admin/AdminCRM';
 import AdminAccounting from './pages/admin/AdminAccounting';
 import AdminReports from './pages/admin/AdminReports';
@@ -54,7 +55,8 @@ const App = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="inventory" element={<AdminInventory />} />
         <Route path="inventory/edit/:id" element={<AdminEditProduct />} />
-        <Route path="billing" element={<AdminBilling />} />
+        <Route path="sales" element={<AdminSales />} />
+        <Route path="purchases" element={<AdminPurchases />} />
         <Route path="crm" element={<AdminCRM />} />
         <Route path="accounting" element={<AdminAccounting />} />
         <Route path="reports" element={<AdminReports />} />
