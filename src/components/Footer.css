@@ -65,6 +65,22 @@
   color: #9CA3AF;
 }
 
+.contact-item a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.contact-item .contact-icon {
+  color: var(--accent-warm-orange);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.contact-item a:hover {
+  color: var(--accent-warm-orange);
+}
+
 .social-links {
   display: flex;
   gap: 1rem;

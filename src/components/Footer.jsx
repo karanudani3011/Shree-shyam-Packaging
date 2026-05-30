@@ -53,8 +53,10 @@ const Footer = () => {
                 <span>+91 8490831316</span>
               </div>
               <div className="contact-item">
-                <Mail size={18} color="var(--accent-warm-orange)" />
-                <span>info@shreeshyampackaging.com</span>
+                <span className="contact-icon">
+                  <Mail size={18} />
+                </span>
+                <a href="mailto:shreeshyampackaging13@gmail.com">shreeshyampackaging13@gmail.com</a>
               </div>
               <div className="contact-item">
                 <MapPin size={35} color="var(--accent-warm-orange)" />
