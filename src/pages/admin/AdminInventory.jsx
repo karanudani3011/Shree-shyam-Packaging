@@ -21,6 +21,7 @@ import Barcode from 'react-barcode';
 import { useERP, CATEGORIES } from '../../context/ERPContext';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 import { useAuth } from '../../context/AuthContext';
+import { generateSKU } from '../../utils/sku';
 import './AdminPages.css';
 
 const formatDateTime = (isoString) => {
@@ -80,11 +81,11 @@ const AdminInventory = () => {
 
   const emptyProduct = {
     name: '',
-    category: 'Dabbi',
+    category: 'Pal Bopp bag',
     stock: 0,
     price: '',
     cost: '',
-    sku: 'A',
+    sku: '',
     image: '',
     dimensions: '',
     length: '',
@@ -101,22 +102,22 @@ const AdminInventory = () => {
 
   const [newProduct, setNewProduct] = useState({ ...emptyProduct });
 
-  // Auto-SKU Logic
-  const generateSKU = (category) => {
-    const prefixMap = {
-      'Dabbi': 'A',
-      'bags': 'B',
-      'cards': 'C',
-      'plastic box': 'D',
-      'paper boxes': 'E',
-      'Tap': 'F'
-    };
-    return prefixMap[category] || 'X';
+  // Track if SKU was manually edited so auto-gen doesn't overwrite it
+  const [skuManuallyEdited, setSkuManuallyEdited] = useState(false);
+
+  const handleAutoGenSKU = (category, target) => {
+    const nextSku = generateSKU(category, products);
+    if (target === 'new') {
+      setNewProduct(prev => ({ ...prev, sku: nextSku }));
+      setSkuManuallyEdited(false);
+    }
   };
 
+  // When category changes in the Add modal, auto-generate SKU only if not manually edited
   useEffect(() => {
-    if (!editingProduct && newProduct.category) {
-      setNewProduct(prev => ({ ...prev, sku: generateSKU(newProduct.category) }));
+    if (!editingProduct && !skuManuallyEdited) {
+      const nextSku = generateSKU(newProduct.category, products);
+      setNewProduct(prev => ({ ...prev, sku: nextSku }));
     }
   }, [newProduct.category, editingProduct]);
 
@@ -457,13 +458,34 @@ const AdminInventory = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>SKU Code</label>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>SKU Code</span>
+                  <button
+                    type="button"
+                    onClick={() => handleAutoGenSKU(newProduct.category, 'new')}
+                    style={{
+                      fontSize: '0.7rem',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      border: '1px solid var(--admin-primary)',
+                      background: 'rgba(99,102,241,0.15)',
+                      color: 'var(--admin-primary)',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    ⚡ Auto-Gen
+                  </button>
+                </label>
                 <input 
                   type="text" 
                   value={newProduct.sku} 
-                  onChange={e => setNewProduct({...newProduct, sku: e.target.value})} 
-                  placeholder="e.g. A"
+                  onChange={e => { setNewProduct({...newProduct, sku: e.target.value}); setSkuManuallyEdited(true); }} 
+                  placeholder={`e.g. ${generateSKU(newProduct.category, products)}`}
                 />
+                <small style={{ color: 'var(--admin-text-dim)', marginTop: '4px', display: 'block', fontSize: '0.73rem' }}>
+                  Series auto-detected from category. Admin can override anytime.
+                </small>
               </div>
               
               <div className="form-group">

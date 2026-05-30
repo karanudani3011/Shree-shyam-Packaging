@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useERP, CATEGORIES } from '../../context/ERPContext';
 import { uploadToCloudinary } from '../../utils/cloudinary';
+import { generateSKU } from '../../utils/sku';
 import './AdminPages.css';
 
 const AdminEditProduct = () => {
@@ -148,12 +149,37 @@ const AdminEditProduct = () => {
           </div>
 
           <div className="form-group">
-            <label>SKU Code</label>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>SKU Code</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const nextSku = generateSKU(product.category, products.filter(p => p.id !== product.id));
+                  setProduct({ ...product, sku: nextSku });
+                }}
+                style={{
+                  fontSize: '0.7rem',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid var(--admin-primary)',
+                  background: 'rgba(99,102,241,0.15)',
+                  color: 'var(--admin-primary)',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                ⚡ Auto-Gen
+              </button>
+            </label>
             <input 
               type="text" 
               value={product.sku} 
               onChange={e => setProduct({...product, sku: e.target.value})} 
+              placeholder={`e.g. ${generateSKU(product.category, products.filter(p => p.id !== product.id))}`}
             />
+            <small style={{ color: 'var(--admin-text-dim)', marginTop: '4px', display: 'block', fontSize: '0.73rem' }}>
+              Auto-Gen assigns the next sequential code for this category.
+            </small>
           </div>
 
           <div className="form-group">

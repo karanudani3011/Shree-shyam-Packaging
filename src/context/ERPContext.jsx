@@ -3,7 +3,25 @@ import { supabase } from '../utils/supabase';
 
 const ERPContext = createContext();
 
-export const CATEGORIES = ['Dabbi', 'bags', 'cards', 'plastic box', 'paper boxes', 'Tap'];
+export const CATEGORIES = [
+  'Pal Bopp bag',
+  'tape bopp bag',
+  'PP Bag',
+  'LD Bag',
+  'plastic Box',
+  'Dabbi',
+  'Fashion / customised card',
+  'Cartoon',
+  'Pati',
+  'Label',
+  'Bubble',
+  'customised/small box',
+  'machines',
+  'peach',
+  'Bags',
+  'Tapes',
+  'Parcel packing items'
+];
 
 export const ERPProvider = ({ children }) => {
   const [products, setProducts] = useState([]);

@@ -1,25 +1,37 @@
+/* ===== Category Navigation Section ===== */
 .category-nav {
-  padding: 3rem 0;
+  padding: 3rem 0 2rem;
+}
+
+.category-nav-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-deep-navy);
+  margin-bottom: 1.75rem;
+  text-align: center;
 }
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
 }
 
+/* ===== Individual Category Card ===== */
 .category-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 2rem 1rem;
+  gap: 0.65rem;
+  padding: 1.25rem 0.75rem;
   background: var(--bg-card-surface);
   border-radius: var(--card-radius);
   box-shadow: var(--soft-shadow);
   transition: all var(--transition-normal);
   text-align: center;
+  text-decoration: none;
 }
 
 .category-item:hover {
@@ -28,9 +40,10 @@
   background: linear-gradient(135deg, var(--bg-card-surface), #F0F4FF);
 }
 
+/* ===== Icon Circle ===== */
 .category-icon-wrapper {
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: rgba(0, 212, 255, 0.1);
   display: flex;
@@ -38,6 +51,7 @@
   justify-content: center;
   color: var(--primary-royal-blue);
   transition: all var(--transition-normal);
+  flex-shrink: 0;
 }
 
 .category-item:hover .category-icon-wrapper {
@@ -46,9 +60,39 @@
   transform: scale(1.1);
 }
 
+/* ===== Category Label ===== */
 .category-name {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   color: var(--primary-deep-navy);
-  font-size: 1.1rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .category-item {
+    padding: 1rem 0.5rem;
+  }
+
+  .category-icon-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .category-name {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+  }
 }

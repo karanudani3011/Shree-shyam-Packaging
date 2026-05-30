@@ -5,7 +5,14 @@ import ProductCard from '../components/ProductCard';
 import { useERP, CATEGORIES } from '../context/ERPContext';
 import './ProductListing.css';
 
-const categories = ['All', ...CATEGORIES];
+const allCategories = ['All', ...CATEGORIES];
+
+// Maps high-level filter labels to keywords that match any new granular category name
+const categoryMatchesFilter = (productCategory, filterCategory) => {
+  if (filterCategory === 'All') return true;
+  return productCategory?.toLowerCase() === filterCategory.toLowerCase() ||
+    productCategory?.toLowerCase().includes(filterCategory.toLowerCase());
+};
 
 const ProductListing = () => {
   const location = useLocation();
@@ -19,8 +26,10 @@ const ProductListing = () => {
 
   useEffect(() => {
     if (categoryParam) {
-      const formatted = categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1);
-      setSelectedCategory(formatted);
+      // Use the decoded param as-is — categories now use exact names via encodeURIComponent
+      setSelectedCategory(decodeURIComponent(categoryParam));
+    } else {
+      setSelectedCategory('All');
     }
   }, [categoryParam]);
 
@@ -32,7 +41,7 @@ const ProductListing = () => {
                           (product.category && product.category.toLowerCase().includes(searchLower)) ||
                           (product.sku && product.sku.toLowerCase().includes(searchLower));
     
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    const matchesCategory = categoryMatchesFilter(product.category, selectedCategory);
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
     if (sortOption === 'price-low') {
@@ -64,7 +73,7 @@ const ProductListing = () => {
             <div className="filter-group">
               <h3 className="filter-title">Categories</h3>
               <div className="filter-options">
-                {categories.map(cat => (
+                {allCategories.map(cat => (
                   <label key={cat} className="filter-label">
                     <input 
                       type="radio" 
