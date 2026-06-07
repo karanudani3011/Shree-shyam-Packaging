@@ -929,17 +929,9 @@ select option {
    STICKER PRINT PATTERN & PREVIEW STYLES (30mm x 20mm)
    ========================================================================== */
 
-/* Hidden by default on screen */
-.printable-sticker-label {
-  display: none;
-}
-
-/* ==========================================================================
-   STICKER PRINT PATTERN & PREVIEW STYLES (30mm x 20mm)
-   ========================================================================== */
-
-/* Hidden by default on screen */
-.printable-sticker-label {
+/* Hidden by default on screen — only visible via @media print */
+.printable-sticker-label,
+.printable-sticker-row {
   display: none;
 }
 
@@ -1031,18 +1023,19 @@ select option {
   z-index: 2; /* Over background logo */
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start; /* SKU at top, name below */
+  align-items: flex-start;     /* Left-aligned like real sticker */
   width: 100%;
   height: 100%;
-  gap: 12em;
+  gap: 5em;
+  padding-top: 10em;
 }
 
 .sticker-sku {
-  font-size: 62em; /* Enlarged bold SKU */
+  font-size: 70em; /* Very large bold SKU code */
   font-weight: 900;
   color: black !important;
-  line-height: 1.1;
+  line-height: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1051,8 +1044,8 @@ select option {
 }
 
 .sticker-name {
-  font-size: 13em; /* Sized down product name */
-  font-weight: 400; /* Normal text weight, not bold */
+  font-size: 17em; /* Sized up product name for legibility */
+  font-weight: 500; /* Medium weight for high-fidelity print */
   color: black !important;
   line-height: 1.15;
   word-break: break-all;
@@ -1079,10 +1072,10 @@ select option {
   color: white !important;
 }
 
-/* Print Overrides — Sticker fills exactly a 30mm x 20mm label */
+/* Print Overrides — Sticker fills exactly a 3-column 96mm x 20mm row */
 @media print {
   @page {
-    size: 30mm 20mm;
+    size: 96mm 20mm;
     margin: 0;
   }
 
@@ -1091,7 +1084,7 @@ select option {
     color: black !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 30mm !important;
+    width: 96mm !important;
     height: 20mm !important;
     overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
@@ -1103,25 +1096,70 @@ select option {
     display: none !important;
   }
 
-  /* ── Sticker wrapper: exact size ── */
-  .printable-sticker-label {
+  /* ── Sticker Row: exact 3-column size ── */
+  .printable-sticker-row {
     font-size: 0.1mm !important; /* 1em = 0.1mm */
     display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
+    width: 960em !important; /* 96mm */
+    height: 200em !important; /* 20mm */
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  /* ── Individual Sticker inside row ── */
+  .printable-sticker-label {
+    font-size: 1em !important; /* Inherits 0.1mm base from row */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important; /* SKU at top */
+    align-items: flex-start !important;     /* Left-aligned text */
+    position: relative !important;
     width: 300em !important; /* 30mm */
     height: 200em !important; /* 20mm */
     background: white !important;
     color: black !important;
     margin: 0 !important;
-    padding: 10em 15em !important;
+    padding: 10em 12em !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
     font-family: Arial, Helvetica, sans-serif !important;
+  }
+
+  /* Sticker content inside print label */
+  .printable-sticker-label .sticker-content {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    gap: 4em !important;
+    padding-top: 8em !important;
+  }
+
+  /* SKU large and bold at top in print */
+  .printable-sticker-label .sticker-sku {
+    font-size: 70em !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+  }
+
+  /* Name below SKU in smaller text */
+  .printable-sticker-label .sticker-name {
+    font-size: 16em !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Category/dimensions at bottom */
+  .printable-sticker-label .sticker-dimensions {
+    font-size: 13em !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
   }
 
   /* Ensure background logo prints correctly */

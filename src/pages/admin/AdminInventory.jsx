@@ -579,21 +579,25 @@ const AdminInventory = () => {
       )}
 
       {showCodes && createPortal(
-        <div className="printable-sticker-label">
-          <div className="sticker-bg-logo">
-            <div className="logo-circle-wrapper">
-              <div className="logo-circle">
-                <span className="logo-text-center">SSP</span>
+        <div className="printable-sticker-row">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="printable-sticker-label">
+              <div className="sticker-bg-logo">
+                <div className="logo-circle-wrapper">
+                  <div className="logo-circle">
+                    <span className="logo-text-center">SSP</span>
+                  </div>
+                  <span className="logo-tm">TM</span>
+                </div>
               </div>
-              <span className="logo-tm">TM</span>
+              
+              <div className="sticker-content">
+                <div className="sticker-sku">{showCodes.sku}</div>
+                <div className="sticker-name">{showCodes.name}</div>
+                <div className="sticker-dimensions">{showCodes.dimensions || showCodes.category}</div>
+              </div>
             </div>
-          </div>
-          
-          <div className="sticker-content">
-            <div className="sticker-sku">{showCodes.sku}</div>
-            <div className="sticker-name">{showCodes.name}</div>
-            <div className="sticker-dimensions">{showCodes.dimensions || showCodes.category}</div>
-          </div>
+          ))}
         </div>,
         document.body
       )}
