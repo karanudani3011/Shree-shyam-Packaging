@@ -279,14 +279,6 @@ const AdminInventory = () => {
           />
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-danger-outline" onClick={() => {
-            if (window.confirm('WARNING: This will permanently delete ALL products and transactions. Are you sure?')) {
-              clearInventory();
-            }
-          }}>
-            <Trash2 size={18} />
-            Clear All Data
-          </button>
           <button className="glass-btn" onClick={() => excelInputRef.current?.click()} style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
             <Upload size={18} />
             Excel Upload
@@ -557,26 +549,19 @@ const AdminInventory = () => {
             
             <div className="sticker-preview-container" style={{ margin: '2rem 0', display: 'flex', justifyContent: 'center' }}>
               <div className="sticker-card-preview">
-                <div className="sticker-main-row">
-                  <div className="sticker-logo-col">
-                    <div className="logo-circle-wrapper">
-                      <div className="logo-circle">
-                        <span className="logo-text-top">Shree</span>
-                        <span className="logo-text-center">SSP</span>
-                        <span className="logo-text-bottom">Shyam</span>
-                      </div>
-                      <span className="logo-tm">TM</span>
+                <div className="sticker-bg-logo">
+                  <div className="logo-circle-wrapper">
+                    <div className="logo-circle">
+                      <span className="logo-text-center">SSP</span>
                     </div>
+                    <span className="logo-tm">TM</span>
                   </div>
-
-                  <div className="sticker-qr-col">
-                    <QRCode value={getProductPublicUrl(showCodes)} size={48} />
-                  </div>
-                  
-                  <div className="sticker-details-col">
-                    <div className="sticker-prod-name">{showCodes.name}</div>
-                    <div className="sticker-sku-big">{showCodes.sku}</div>
-                  </div>
+                </div>
+                
+                <div className="sticker-content">
+                  <div className="sticker-sku">{showCodes.sku}</div>
+                  <div className="sticker-name">{showCodes.name}</div>
+                  <div className="sticker-dimensions">{showCodes.dimensions || showCodes.category}</div>
                 </div>
               </div>
             </div>
@@ -595,26 +580,19 @@ const AdminInventory = () => {
 
       {showCodes && createPortal(
         <div className="printable-sticker-label">
-          <div className="sticker-main-row">
-            <div className="sticker-logo-col">
-              <div className="logo-circle-wrapper">
-                <div className="logo-circle">
-                  <span className="logo-text-top">Shree</span>
-                  <span className="logo-text-center">SSP</span>
-                  <span className="logo-text-bottom">Shyam</span>
-                </div>
-                <span className="logo-tm">TM</span>
+          <div className="sticker-bg-logo">
+            <div className="logo-circle-wrapper">
+              <div className="logo-circle">
+                <span className="logo-text-center">SSP</span>
               </div>
+              <span className="logo-tm">TM</span>
             </div>
-
-            <div className="sticker-qr-col">
-              <QRCode value={getProductPublicUrl(showCodes)} size={48} />
-            </div>
-            
-            <div className="sticker-details-col">
-              <div className="sticker-prod-name">{showCodes.name}</div>
-              <div className="sticker-sku-big">{showCodes.sku}</div>
-            </div>
+          </div>
+          
+          <div className="sticker-content">
+            <div className="sticker-sku">{showCodes.sku}</div>
+            <div className="sticker-name">{showCodes.name}</div>
+            <div className="sticker-dimensions">{showCodes.dimensions || showCodes.category}</div>
           </div>
         </div>,
         document.body

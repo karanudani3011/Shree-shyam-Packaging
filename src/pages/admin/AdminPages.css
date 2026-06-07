@@ -313,14 +313,79 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* Modal Premium */
+/* Modal Premium & Overlay Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(9, 13, 22, 0.75); /* Deep translucent overlay matching admin theme */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Float above the sidebar (z-index 200) and headers */
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+  animation: fadeInOverlay 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .modal-content {
   background: #0f172a;
   border: 1px solid var(--admin-border);
   padding: 2.5rem;
-  border-radius: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border-radius: 28px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 122, 0, 0.05);
   position: relative;
+  width: 100%;
+  max-width: 550px;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 122, 0, 0.25) transparent;
+  animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-content.modal-large {
+  max-width: 900px;
+}
+
+/* Modal Entry Animations */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUpModal {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom scrollbar styling for modal-content */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 122, 0, 0.25);
+  border-radius: 3px;
+}
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 122, 0, 0.45);
 }
 
 .form-grid {
@@ -861,7 +926,16 @@ select option {
 }
 
 /* ==========================================================================
-   STICKER PRINT PATTERN & PREVIEW STYLES
+   STICKER PRINT PATTERN & PREVIEW STYLES (30mm x 20mm)
+   ========================================================================== */
+
+/* Hidden by default on screen */
+.printable-sticker-label {
+  display: none;
+}
+
+/* ==========================================================================
+   STICKER PRINT PATTERN & PREVIEW STYLES (30mm x 20mm)
    ========================================================================== */
 
 /* Hidden by default on screen */
@@ -873,37 +947,37 @@ select option {
 .sticker-card-preview, .printable-sticker-label {
   background: white !important;
   color: black !important;
-  border-radius: 8px;
+  border-radius: 4em;
   box-sizing: border-box;
-  padding: 1.5mm 3.5mm;
+  padding: 10em 15em;
   font-family: Arial, Helvetica, sans-serif;
-  text-align: left;
-}
-
-/* Screen Preview Container sizing */
-.sticker-card-preview {
-  width: 75mm;
-  height: 20mm;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  transform: scale(1.4); /* upscale slightly for preview visibility */
-  transform-origin: center;
-}
-
-.sticker-main-row {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  gap: 2mm;
-  width: 100%;
-  height: 100%;
-}
-
-.sticker-logo-col {
-  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 14mm;
-  height: 14mm;
+}
+
+/* Screen Preview Container sizing - Uses clean pixel-based size to prevent transform overlaps */
+.sticker-card-preview {
+  font-size: 1px; /* 1em = 1px */
+  width: 300px;
+  height: 200px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  margin: 0 auto;
+}
+
+.sticker-bg-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1; /* Keep opacity at 1 so the text remains legible */
+  pointer-events: none;
+  z-index: 1;
 }
 
 .logo-circle-wrapper {
@@ -912,11 +986,11 @@ select option {
 }
 
 .logo-circle {
-  width: 12mm;
-  height: 12mm;
+  width: 120em;
+  height: 120em;
   border-radius: 50%;
-  background: #582f87; /* Purple circle matching SSP logo */
-  color: white;
+  background: rgba(88, 47, 135, 0.07); /* Very light purple watermark circle */
+  color: rgba(88, 47, 135, 0.25); /* Clearly visible watermark text */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -926,99 +1000,89 @@ select option {
   box-sizing: border-box;
 }
 
-.logo-text-top {
-  font-size: 5px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-top: 1px;
-  letter-spacing: 0.2px;
-  line-height: 1;
-}
-
 .logo-text-center {
-  font-size: 11px;
+  font-size: 38em;
   font-weight: 900;
   font-family: 'Times New Roman', Times, serif;
   line-height: 1;
-  margin: -1px 0;
-  letter-spacing: 0.5px;
-}
-
-.logo-text-bottom {
-  font-size: 5px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-bottom: 1.5px;
-  letter-spacing: 0.2px;
-  line-height: 1;
+  letter-spacing: 0.05em; /* Fixed relative letter spacing */
 }
 
 .logo-tm {
   position: absolute;
-  top: -1px;
-  right: -2.5mm;
-  font-size: 4px;
+  top: -0.3em; /* Relative to font-size of logo-tm (10em) */
+  right: -2.5em; /* Relative to font-size of logo-tm (10em) */
+  font-size: 10em; /* 10px on screen / 1mm on print */
   font-weight: 900;
-  border: 0.5px solid #000;
+  border: 0.5px solid rgba(88, 47, 135, 0.25); /* Thin matching border */
   border-radius: 50%;
-  width: 2.2mm;
-  height: 2.2mm;
+  width: 2.2em; /* 22px on screen / 2.2mm on print */
+  height: 2.2em; /* 22px on screen / 2.2mm on print */
   display: flex;
   align-items: center;
   justify-content: center;
   background: white;
-  color: black;
+  color: rgba(88, 47, 135, 0.25);
 }
 
-.sticker-qr-col {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 14mm;
-  height: 14mm;
-  background: white !important;
-}
-
-.sticker-qr-col svg {
-  display: block;
-}
-
-.sticker-details-col {
-  flex: 1;
+/* Sticker content text formatting */
+.sticker-content {
+  position: relative;
+  z-index: 2; /* Over background logo */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 2px;
-  overflow: hidden;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  gap: 12em;
 }
 
-.sticker-prod-name {
-  font-size: 7px;
-  font-weight: 600;
+.sticker-sku {
+  font-size: 62em; /* Enlarged bold SKU */
+  font-weight: 900;
+  color: black !important;
+  line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 3px;
-  color: black;
+  max-width: 100%;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
-.sticker-sku-big {
-  font-size: 16px;
-  font-weight: 900;
-  color: black;
-  letter-spacing: 1px;
+.sticker-name {
+  font-size: 13em; /* Sized down product name */
+  font-weight: 400; /* Normal text weight, not bold */
+  color: black !important;
+  line-height: 1.15;
+  word-break: break-all;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sticker-dimensions {
+  font-size: 11em; /* Sized down dimensions/category */
+  font-weight: 400; /* Normal text weight, not bold */
+  color: #555 !important;
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-/* Print Overrides — Sticker fills exactly a 75mm x 20mm label */
+/* Fix title contrast inside preview modal */
+.modal-content .card-header h3 {
+  color: white !important;
+}
+
+/* Print Overrides — Sticker fills exactly a 30mm x 20mm label */
 @media print {
   @page {
-    size: 75mm 20mm;
+    size: 30mm 20mm;
     margin: 0;
   }
 
@@ -1027,7 +1091,7 @@ select option {
     color: black !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 75mm !important;
+    width: 30mm !important;
     height: 20mm !important;
     overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
@@ -1041,156 +1105,31 @@ select option {
 
   /* ── Sticker wrapper: exact size ── */
   .printable-sticker-label {
+    font-size: 0.1mm !important; /* 1em = 0.1mm */
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
+    align-items: center !important;
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
-    width: 75mm !important;
-    height: 20mm !important;
+    width: 300em !important; /* 30mm */
+    height: 200em !important; /* 20mm */
     background: white !important;
     color: black !important;
     margin: 0 !important;
-    padding: 1.5mm 3.5mm !important;
+    padding: 10em 15em !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
     font-family: Arial, Helvetica, sans-serif !important;
   }
 
-  /* ── Main content row ── */
-  .printable-sticker-label .sticker-main-row {
-    display: flex !important;
-    align-items: center !important;
-    gap: 3mm !important;
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-  }
-
-  /* ── Logo column ── */
-  .printable-sticker-label .sticker-logo-col {
-    width: 14mm !important;
-    height: 14mm !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-  }
-
-  .printable-sticker-label .logo-circle-wrapper {
-    position: relative !important;
-    width: 12mm !important;
-    height: 12mm !important;
-  }
-
-  .printable-sticker-label .logo-circle {
-    width: 12mm !important;
-    height: 12mm !important;
-    border-radius: 50% !important;
-    background: #582f87 !important;
-    color: white !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-  }
-
-  .printable-sticker-label .logo-text-top {
-    font-size: 5px !important;
-    font-weight: bold !important;
-    text-transform: uppercase !important;
-    margin-top: 1px !important;
-    letter-spacing: 0.2px !important;
-    line-height: 1 !important;
-  }
-
-  .printable-sticker-label .logo-text-center {
-    font-size: 11px !important;
-    font-weight: 900 !important;
-    font-family: 'Times New Roman', Times, serif !important;
-    line-height: 1 !important;
-    margin: -1px 0 !important;
-    letter-spacing: 0.5px !important;
-  }
-
-  .printable-sticker-label .logo-text-bottom {
-    font-size: 5px !important;
-    font-weight: bold !important;
-    text-transform: uppercase !important;
-    margin-bottom: 1.5px !important;
-    letter-spacing: 0.2px !important;
-    line-height: 1 !important;
-  }
-
-  .printable-sticker-label .logo-tm {
-    position: absolute !important;
-    top: -1px !important;
-    right: -2.5mm !important;
-    font-size: 4px !important;
-    font-weight: 900 !important;
-    border: 0.5px solid #000 !important;
-    border-radius: 50% !important;
-    width: 2.2mm !important;
-    height: 2.2mm !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: white !important;
-    color: black !important;
-  }
-
-  /* ── QR column ── */
-  .printable-sticker-label .sticker-qr-col {
-    width: 14mm !important;
-    height: 14mm !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    background: white !important;
-  }
-
-  /* Force QR SVG to render at exact size */
-  .printable-sticker-label .sticker-qr-col svg {
-    width: 14mm !important;
-    height: 14mm !important;
+  /* Ensure background logo prints correctly */
+  .printable-sticker-label .sticker-bg-logo {
     display: block !important;
-  }
-
-  /* ── Details column ── */
-  .printable-sticker-label .sticker-details-col {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-    padding-left: 2mm !important;
-  }
-
-  .printable-sticker-label .sticker-prod-name {
-    font-size: 7px !important;
-    font-weight: 600 !important;
-    color: black !important;
-    margin-bottom: 2px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.3px !important;
-  }
-
-  .printable-sticker-label .sticker-sku-big {
-    font-size: 16px !important;
-    font-weight: 900 !important;
-    color: black !important;
-    letter-spacing: 1px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 
