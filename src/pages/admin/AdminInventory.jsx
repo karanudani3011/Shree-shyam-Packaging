@@ -561,7 +561,6 @@ const AdminInventory = () => {
                 <div className="sticker-content">
                   <div className="sticker-sku">{showCodes.sku}</div>
                   <div className="sticker-name">{showCodes.name}</div>
-                  <div className="sticker-dimensions">{showCodes.dimensions || showCodes.category}</div>
                 </div>
               </div>
             </div>
@@ -594,7 +593,6 @@ const AdminInventory = () => {
               <div className="sticker-content">
                 <div className="sticker-sku">{showCodes.sku}</div>
                 <div className="sticker-name">{showCodes.name}</div>
-                <div className="sticker-dimensions">{showCodes.dimensions || showCodes.category}</div>
               </div>
             </div>
           ))}
