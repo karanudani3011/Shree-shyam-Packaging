@@ -1142,6 +1142,7 @@ select option {
     align-items: center !important;
     gap: 8em !important;
     padding-top: 0 !important;
+    transform: translateX(-12em) !important;
   }
 
   /* SKU large and bold at top in print */
