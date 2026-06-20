@@ -18,6 +18,12 @@ import {
   Briefcase,
   Scissors,
   PackageOpen,
+  Scroll,
+  Hexagon,
+  Megaphone,
+  Database,
+  Cable,
+  LayoutGrid,
 } from 'lucide-react';
 import './CategoryNav.css';
 
@@ -39,6 +45,12 @@ const categories = [
   { id: 'Bags',                      name: 'Bags',                 icon: Briefcase },
   { id: 'Tapes',                     name: 'Tapes',                icon: Scissors },
   { id: 'Parcel packing items',      name: 'Parcel Packing',       icon: Truck },
+  { id: 'Stationary Roll',           name: 'Stationary Roll',      icon: Scroll },
+  { id: 'Koba',                      name: 'Koba',                 icon: Hexagon },
+  { id: 'Ad Metalren',               name: 'Ad Metalren',          icon: Megaphone },
+  { id: 'Raw Material',              name: 'Raw Material',         icon: Database },
+  { id: 'Soldier Wire',              name: 'Soldier Wire',         icon: Cable },
+  { id: 'All Other Items',           name: 'All Other Items',      icon: LayoutGrid },
 ];
 
 const CategoryNav = () => {

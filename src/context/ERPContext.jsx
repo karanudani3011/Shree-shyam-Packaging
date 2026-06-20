@@ -20,7 +20,13 @@ export const CATEGORIES = [
   'peach',
   'Bags',
   'Tapes',
-  'Parcel packing items'
+  'Parcel packing items',
+  'Stationary Roll',
+  'Koba',
+  'Ad Metalren',
+  'Raw Material',
+  'Soldier Wire',
+  'All Other Items'
 ];
 
 export const ERPProvider = ({ children }) => {

@@ -20,6 +20,12 @@
  * - P ➔ Bags
  * - Q ➔ Tapes
  * - R ➔ Parcel packing items
+ * - S ➔ Stationary Roll
+ * - T ➔ Koba
+ * - U ➔ Ad Metalren
+ * - V ➔ Raw Material
+ * - W ➔ Soldier Wire
+ * - X ➔ All Other Items
  */
 
 export const generateSKU = (category, existingProducts = []) => {
@@ -41,6 +47,12 @@ export const generateSKU = (category, existingProducts = []) => {
     'Bags': 'p',
     'Tapes': 'q',
     'Parcel packing items': 'r',
+    'Stationary Roll': 's',
+    'Koba': 't',
+    'Ad Metalren': 'u',
+    'Raw Material': 'v',
+    'Soldier Wire': 'w',
+    'All Other Items': 'x',
 
     // User-facing / legacy aliases
     'bags': 'b',
