@@ -24,9 +24,10 @@ export const CATEGORIES = [
   'Stationary',
   'Roll',
   'Koba',
-  'Ad Metalren',
+  'Ad',
+  'Metal',
   'Raw Material',
-  'Soldier Wire',
+  'Ren / Soldier Wire',
   'All Other Items'
 ];
 

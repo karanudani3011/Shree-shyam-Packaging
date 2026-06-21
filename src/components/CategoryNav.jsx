@@ -48,9 +48,10 @@ const categories = [
   { id: 'Stationary',                name: 'Stationary',           icon: Scroll },
   { id: 'Roll',                      name: 'Roll',                 icon: Circle },
   { id: 'Koba',                      name: 'Koba',                 icon: Hexagon },
-  { id: 'Ad Metalren',               name: 'Ad Metalren',          icon: Megaphone },
-  { id: 'Raw Material',              name: 'Raw Material',         icon: Database },
-  { id: 'Soldier Wire',              name: 'Soldier Wire',         icon: Cable },
+  { id: 'Ad',             name: 'Ad',             icon: Megaphone },
+  { id: 'Metal',          name: 'Metal',          icon: Hexagon },
+  { id: 'Raw Material',   name: 'Raw Material',   icon: Database },
+  { id: 'Ren / Soldier Wire', name: 'Ren / Soldier Wire', icon: Cable },
   { id: 'All Other Items',           name: 'All Other Items',      icon: LayoutGrid },
 ];
 
